@@ -88,4 +88,3 @@ they have us as their default route).
 Note:
 * We may want to augment the FT with the power profile of each of these? or does this
   belong only in NT?
-
