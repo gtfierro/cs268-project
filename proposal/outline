@@ -1,0 +1,33 @@
+Problem Statement + Motivation:
+
+Current routing protocols for LLNs have too high overhead of control traffic to be
+effective in small, realistic topologies (1-3 hops) and do not properly account
+for the duty-cycled nature of these nodes. 
+
+
+- control traffic should scale w/ size of network
+    - 1-hop should not need any control traffic
+    - 2-hop, 3-hop maybe a little more
+- control traffic should quiesce as the network goes to steady state
+    - shouldn't need to continue to send lots of control msgs to maintain network
+    - let the network traffic inform you
+
+- to maintain 1-3 hop topo + increase reliability of network, want to support multiple border routers
+    - Do BRs advertise different prefixes, or same prefix? 
+    - Do we need external routing table?
+    - Do motes have multiple interfaces for different prefixes?
+
+- want motes to learn the duty-cycle schedules of their neighbors, and base
+  routing decisions on mains-/battery-powered nature of neighbors
+
+
+
+Prior Work
+- RPL, Jonathan Hui's Thesis, IP is Dead, other stuff
+
+Estimate of Results and Deliverables:
+
+Design + implementation of IPv6 routing protocol for duty-cycled motes working in 1-3 hops.
+- design goals from above
+Initial exploration of multiple border router solution.
+Evaluation of control msgs overhead, msg latency, packet reception ratios, energy consumption of motes in both RPL and new protocol.

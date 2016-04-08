@@ -1,0 +1,168 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{natbib}
+\usepackage[in]{fullpage}
+\usepackage{filecontents}
+\usepackage{titling}
+
+
+\begin{filecontents}{proposal.bib}
+@article{winter2012rpl,
+  title={RPL: IPv6 routing protocol for low-power and lossy networks},
+  author={Winter, Tim},
+  year={2012}
+}
+
+@inproceedings{hui2008ip,
+  title={IP is dead, long live IP for wireless sensor networks},
+  author={Hui, Jonathan W and Culler, David E},
+  booktitle={Proceedings of the 6th ACM conference on Embedded network sensor systems},
+  pages={15--28},
+  year={2008},
+  organization={ACM}
+}
+
+@article{levis2011trickle,
+  title={The trickle algorithm},
+  author={Levis, Philip and Clausen, T and Hui, Jonathan and Gnawali, Omprakash and Ko, J},
+  journal={Internet Engineering Task Force, RFC6206},
+  year={2011}
+}
+
+@inproceedings{polastre2004versatile,
+  title={Versatile low power media access for wireless sensor networks},
+  author={Polastre, Joseph and Hill, Jason and Culler, David},
+  booktitle={Proceedings of the 2nd international conference on Embedded networked sensor systems},
+  pages={95--107},
+  year={2004},
+  organization={ACM}
+}
+
+@article{shelby2012neighbor,
+  title={Neighbor discovery optimization for IPv6 over low-power wireless personal area networks (6LoWPANs)},
+  author={Shelby, Zach and Chakrabarti, Samita and Nordmark, E and Bormann, C},
+  journal={Standard Track},
+  volume={6775},
+  year={2012}
+}
+
+@article{narten2007neighbor,
+  title={Neighbor discovery for IP version 6 (IPv6)},
+  author={Narten, Thomas and Simpson, William Allen and Nordmark, Erik and Soliman, Hesham},
+  year={2007}
+}
+
+@phdthesis{hui2008extended,
+  title={An Extended Internet Architecture for Low-power Wireless Networks: Design and Implementation},
+  author={Hui, Jonathan Wing-Yan},
+  year={2008},
+  school={University of California, Berkeley}
+}
+
+@article{fonseca2006collection,
+    title={The collection tree protocol (CTP)},
+    author={Fonseca, Rodrigo and Gnawali, Omprakash and Jamieson, Kyle and Kim, Sukun and Levis, Philip and Woo, Alec},
+    journal={TinyOS TEP},
+    volume={123},
+    pages={2},
+    year={2006}
+}
+
+@inproceedings{dawson2010hydro,
+    title={Hydro: A hybrid routing protocol for low-power and lossy networks},
+    author={Dawson-Haggerty, Stephen and Tavakoli, Arsalan and Culler, David},
+    booktitle={Smart Grid Communications (SmartGridComm), 2010 First IEEE International Conference on},
+    pages={268--273},
+    year={2010},
+    organization={IEEE}
+}
+\end{filecontents}
+
+
+\title{CS268 Proposal}
+\author{Gabe Fierro, Zain Amro}
+\date{February 2016}
+
+\begin{document}
+\setlength{\droptitle}{-8em}
+
+\maketitle
+
+\section{Problem Statement and Motivation}
+
+
+While a well-trod research area, existing solutions for routing in low-power, lossy networks (LLNs) consisting of constrained wireless nodes (motes) have failed to provide an effective and \emph{actionable} answer for how to perform low-overhead routing in real-world LLNs. Much of the existing work for routing solutions in LLNs has focused on performance in large-scale networks, neglecting to analyze the overhead of these protocols in ``real-world'' networks. In practice (the ``real-world''), the most common LLNs are single-hop or otherwise small-diameter multihop networks.
+
+The ultimate goal (perhaps beyond the scope of this project) is to evaluate the efficacy of the current routing standard for LLNs (RPL, see below) in small-diameter, multihop networks, and design and implement a routing protocol that fulfills the following requirements.
+
+\begin{itemize}
+    \item \textbf{Control traffic should scale with the size of the network}: deployments that fit within a single link-local broadcast domain should not require any routing overhead. The complexity and number of control messages needed to maintain a multihop network should only grow as the network grows.
+    \item \textbf{Control traffic should quiesce as the network converges to steady state}: the existing RPL standard does not provide guidelines for how often control messages should be sent, leading to wasted bandwidth and unnecessary mote wakeups. We will likely use a Trickle~\cite{levis2011trickle} timer here which would provide a simple solution that is both energy efficient and scalable.
+    \item \textbf{Support multiple border routers}: to maintain small diameters and increase reliability, the routing architecture should support the existence of multiple border routers. There is some discussion required here as to whether border routers should advertise different prefixes, advertise the same prefix and use external routing infrastructure for inbound traffic, or have each mote support multiple interfaces/addresses.
+    \item \textbf{Make use of neighbors' power characteristics in routing}: since the nodes are duty-cycled, they should learn their neighbors' schedules and route through powered nodes when/if possible. This will leverage existing work like B-MAC~\cite{polastre2004versatile} and the new 802.15.4e standard.
+    \item \textbf{Make use of existing IPv6 messages where possible}: much of IPv6 neighbor discovery~\cite{shelby2012neighbor, narten2007neighbor} provides reachability detection, router solicitation and advertisements, and other messages that are excellent building blocks for routing protocols.
+\end{itemize}
+
+\section{Prior Work}
+The large body of work for routing in low-power, lossy networks culminated with the development of the RPL standard~\cite{winter2012rpl}. However, the 160+ page specification has not seen a complete, open-source implementation despite the working group existing since 2008. RPL (unnecessarily) replicates many of the IPv6 control messages and provides many features (multiple DODAGS, multiple routing metrics) that are not used in practice.
+
+Work by Jonathan Hui demonstrated the practicality and efficacy of an IPv6-based routing solution in \cite{hui2008ip, hui2008extended}. We plan to leverage many of these approaches, taking advantage of recent changes in IPv6 RFCs and advances in hardware.
+Some of this work was extended in subsequent protocols such as Hydro~\cite{dawson2010hydro}, which only installs point-to-point routes as the network needs them, instead of wasting control messages establishing routes where they may not be needed at all. We want to
+explored this same adaptive approach to routing protocols.
+
+Other LLN routing work such as CTP~\cite{fonseca2006collection} is not IP
+based, and is thus has limited applicability for more recent flavors of
+applications such as those typical of the Internet of Things. We want to
+maintain an IP-based routing protocol.
+
+
+\section{Estimate of Results and Deliverables}
+
+We plan to develop and evaluate the routing protocol on the FireStorm mote, a Cortex M4-based low-power mote running TinyOS, both developed at UC Berkeley. It comes with an extensible IPv6 stack, a RPL implementation and a Lua-based userland that facilitates rapid prototyping. 
+
+Firstly, we will design and implement a new routing protocol meeting the above requirements, for duty-cycled motes in a small diameter multihop network (likely 1-3 hops), working with a single border router. The initial implementation will be written for TinyOS, and may be extended to RIOT-OS, another embedded OS.
+
+Secondly, we plan to extend the routing infrastructure to support multiple border routers, exploring and evaluating the alternatives of multiple prefix meshes, single prefix mesh with additional infrastructure, or multiple addresses per mote (and other options that may emerge).
+
+Finally, we plan to continue partial, ongoing work on a routing testbed to evaluate both RPL and the new protocol. We will analyze overhead of the protocol in terms of control messages (used bandwidth, energy consumption and quiescence rate) and convergence time. The formed mesh will be evaluated in terms of message latency, packet reception ratios, and energy consumption. We will also analyze how well the protocol scales as the mesh grows.
+
+\bibliographystyle{abbrv}
+\bibliography{proposal} 
+\end{document}
+
+\if 0
+Problem Statement + Motivation:
+
+Current routing protocols for LLNs have too high overhead of control traffic to be
+effective in small, realistic topologies (1-3 hops) and do not properly account
+for the duty-cycled nature of these nodes. 
+
+
+- control traffic should scale w/ size of network
+    - 1-hop should not need any control traffic
+    - 2-hop, 3-hop maybe a little more
+- control traffic should quiesce as the network goes to steady state
+    - shouldn't need to continue to send lots of control msgs to maintain network
+    - let the network traffic inform you
+
+- to maintain 1-3 hop topo + increase reliability of network, want to support multiple border routers
+    - Do BRs advertise different prefixes, or same prefix? 
+    - Do we need external routing table?
+    - Do motes have multiple interfaces for different prefixes?
+
+- want motes to learn the duty-cycle schedules of their neighbors, and base
+  routing decisions on mains-/battery-powered nature of neighbors
+
+
+
+Prior Work
+- RPL, Jonathan Hui's Thesis, IP is Dead, other stuff
+
+Estimate of Results and Deliverables:
+
+Design + implementation of IPv6 routing protocol for duty-cycled motes working in 1-3 hops.
+- design goals from above
+Initial exploration of multiple border router solution.
+Evaluation of control msgs overhead, msg latency, packet reception ratios, energy consumption of motes in both RPL and new protocol.
+
+\fi

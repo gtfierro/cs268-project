@@ -1,0 +1,53 @@
+\begin{thebibliography}{1}
+
+\bibitem{dawson2010hydro}
+S.~Dawson-Haggerty, A.~Tavakoli, and D.~Culler.
+\newblock Hydro: A hybrid routing protocol for low-power and lossy networks.
+\newblock In {\em Smart Grid Communications (SmartGridComm), 2010 First IEEE
+  International Conference on}, pages 268--273. IEEE, 2010.
+
+\bibitem{fonseca2006collection}
+R.~Fonseca, O.~Gnawali, K.~Jamieson, S.~Kim, P.~Levis, and A.~Woo.
+\newblock The collection tree protocol (ctp).
+\newblock {\em TinyOS TEP}, 123:2, 2006.
+
+\bibitem{hui2008ip}
+J.~W. Hui and D.~E. Culler.
+\newblock Ip is dead, long live ip for wireless sensor networks.
+\newblock In {\em Proceedings of the 6th ACM conference on Embedded network
+  sensor systems}, pages 15--28. ACM, 2008.
+
+\bibitem{hui2008extended}
+J.~W.-Y. Hui.
+\newblock {\em An Extended Internet Architecture for Low-power Wireless
+  Networks: Design and Implementation}.
+\newblock PhD thesis, University of California, Berkeley, 2008.
+
+\bibitem{levis2011trickle}
+P.~Levis, T.~Clausen, J.~Hui, O.~Gnawali, and J.~Ko.
+\newblock The trickle algorithm.
+\newblock {\em Internet Engineering Task Force, RFC6206}, 2011.
+
+\bibitem{narten2007neighbor}
+T.~Narten, W.~A. Simpson, E.~Nordmark, and H.~Soliman.
+\newblock Neighbor discovery for ip version 6 (ipv6).
+\newblock 2007.
+
+\bibitem{polastre2004versatile}
+J.~Polastre, J.~Hill, and D.~Culler.
+\newblock Versatile low power media access for wireless sensor networks.
+\newblock In {\em Proceedings of the 2nd international conference on Embedded
+  networked sensor systems}, pages 95--107. ACM, 2004.
+
+\bibitem{shelby2012neighbor}
+Z.~Shelby, S.~Chakrabarti, E.~Nordmark, and C.~Bormann.
+\newblock Neighbor discovery optimization for ipv6 over low-power wireless
+  personal area networks (6lowpans).
+\newblock {\em Standard Track}, 6775, 2012.
+
+\bibitem{winter2012rpl}
+T.~Winter.
+\newblock Rpl: Ipv6 routing protocol for low-power and lossy networks.
+\newblock 2012.
+
+\end{thebibliography}
