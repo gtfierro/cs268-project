@@ -85,7 +85,11 @@ until it reaches the border router, which then makes a note in some data structu
 that it has a downward route to that node. The question now is how to handle
 ingress traffic: how does it know which border router to go to?
 
-A solution is this:
+##Border Router Routing
+
+There's two main ways to accomplish border routing; one that requires a coordinator and one that doesn't. The benefit of using a coordinator 
+
+### Coordinator
 
 ```
          +-------------+
@@ -118,6 +122,29 @@ node, which makes sure that all of the BRs have consistent information. This
 should cleanly solve the case of a node switching between border routers,
 because external senders will simply send to the coordinator and it will then
 figure out which BR to forward to.
+
+### No Coordinator
+```
+    +-------------------+  
+   //                   \\     BR informs coordinator
+   ||                   ||     of which nodes it can access.
++------+             +------+  Coordinator routes between the BR.
+| BR 1 |             | BR 2 |
++------+             +------+
+   ||      air gap      ||
+--------      |      -------
+  N2          |       N5   N6
+N1   N3       |     N7   N8
+   N4         |       N9
+
+```
+
+In this design, node reachability information is sent to neighboring border routers in a similar fashion as RIP, and this way every border router in the network is aware of how to get to every node. Inbound traffic is sent downwards to the node if that border router can reach it; if not, simply send the traffic to the border router that can best reach the node, and that border router will send it downwards to the node.
+
+###Coordinator vs No Coordinator
+
+There are definitely some tradeoffs here. Using a coordinator leads to a much simpler design as it's more centralized and contains routing information in a single location. The downside, however, is that a single coordinator could potentially be a bottleneck if there's a lot of traffic coming in. Without a coordinator, the design is more distributed, more complicated, and will take longer to converge to a stable state. However, the upside is that there's no need  for a coordinator and external sender can send to any border router advertising that prefix.
+
 
 The question now is the details of how to maintain this consistent routing
 information.

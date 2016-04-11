@@ -23,7 +23,7 @@ Abbreviations:
 * Node sends an RS on a trickle timer until one or more unicast RA are received
     * This is similar to the DIS message in RPL
     * **Question**: going to be receiving the unicast RAs at different times: do we delay
-      processing until some point in the future eto see if we hear them all?
+      processing until some point in the future to see if we hear them all?
     * **Answer**: it is not up to the routing protocol to say what the wait time is for
       seeing how many RAs we hear, but the protocol should be resilient to processing
       both prematurely and making a more informed decision after hearing more RAs
