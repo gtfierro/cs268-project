@@ -126,9 +126,9 @@ figure out which BR to forward to.
 ### No Coordinator
 ```
     +-------------------+  
-   //                   \\     BR informs coordinator
+   //                   \\     BR talk among themselves
    ||                   ||     of which nodes it can access.
-+------+             +------+  Coordinator routes between the BR.
++------+             +------+
 | BR 1 |             | BR 2 |
 +------+             +------+
    ||      air gap      ||
