@@ -47,6 +47,57 @@ Abbreviations:
     * Also: add the LL addresses of these neighbors to the forwarding table
 
 ## Receiving an RS
+
+First off, this RS should be a bcast by the node.
+
+When we hear an RS, it means that a node wants to join the mesh. We increment a
+counter C that keeps track of the number of outstanding RS we need to respond
+to. C is never less than 0, and a value of 0 means that we think the mesh is in
+a stable state.
+
+We use a Trickle Timer to keep the routing information consistent. This means
+that when we hear the RS, this is inconsistent information.  We first wait for
+some period (`t/2`?) to see if the mote announces its routing decision (see
+below for what to do on a received reachability message in an RA). If it does,
+we decrement C by 1.
+
+When this period expires, we wait a random backoff before sending a Mesh Info
+RA (bcast).  At some point later, we should hear a Reachability RA message from
+the node that sent the RS. This reachability RA contains, among other things,
+which parent the new node has chosen. If the node has chosen us as its parent,
+then we can then propagate this information upwards towards our BR.
+
+When we are waiting this random backoff, if we hear another Mesh Info RA bcast, then
+one of two things happens:
+1. If the hop count it is advertising is better (e.g. lower) than ours, then we cancel our
+   timer and don't send the Mesh Info RA. Decrement C by 1.
+2. Else, if our own hop count is better, then we send our own Mesh Info RA bcast. Set C to 0.
+
+A problem that might occur is that in the worst case scenario, nodes report their Mesh Info RA bcasts
+in inverse order of their hop counts, so hop count N reports first, then N-1, then N-2, etc etc until
+the minimum hop count finally is broadcasted.
+TODO: should we wait some time proportional to our hop count? Then its more likely that a node will
+hear the correct one first. E.g. wait hop count * 500ms +/- random jitter.
+
+**For Now**: just have every node do this independently. What we are probably going to want to do
+in a denser deployment is have this node summarize its neighbors and their hop count info so that
+we don't get a ton of control traffic, but we can proceed w/o that for now.
+
+### Messages
+
+These messages are options attached to Router Advertisement messages.
+
+**Mesh Info RA** contains the following
+* our prefix (/64)
+* our hop count
+* our power profile
+
+**Reachability Info RA** contains the following
+* next hop parent (lower 64 bits of address)
+* (compressed) list of nodes reachable from the node
+* (compressed) list of hop counts for those nodes?
+
+### Receiving an RS (Old)
 * When we hear an RS, it means that a node wants to join the mesh.
 * We send a unicast RA containing:
     * our prefix (/64)
@@ -88,3 +139,16 @@ they have us as their default route).
 Note:
 * We may want to augment the FT with the power profile of each of these? or does this
   belong only in NT?
+
+
+
+
+## Questions
+
+The basic sequence of routing messages for an "onboarding" process for a new mote is:
+1. New mote sends RS messages on some timer
+2. N motes hear and respond with a unicast RA
+3. Mote decides on one of these as a parent.
+
+What happens if each of those N motes sends up reachability information of that mote w/o knowing
+which one of them it chose as a parent? It could reach two border routers
