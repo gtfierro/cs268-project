@@ -18,6 +18,26 @@ Abbreviations:
 * FT: Forwarding Table
 * Trickle timer
 
+## TODOs
+
+* [ ] have different print colors for each action: send msg, recv msg, change state, etc
+* [ ] add `SERP_STFU` tag
+* [ ] periodically print out contents of neighbor table
+* [ ] periodically print out routing state
+* [ ] Border router sends RA mesh infos on a trickle timer
+
+## Issues
+
+###  How do we rebuild/repair a mesh?
+
+1. Border router goes down and comes back up
+    * needs to rebuild routing table
+    * does this need a "global rebuild" message? -- just elicits the mesh announcement messages
+
+2. Node that's not border router goes down:
+    * if other nodes cant' send through their default route, they query the SERP neighbor table to remove that
+      link and find a new one
+
 ## Node Coming Online
 
 * Node sends an RS on a trickle timer until one or more unicast RA are received
