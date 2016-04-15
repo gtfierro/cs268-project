@@ -52,8 +52,26 @@ Using tshark;
 ```
 sudo tshark -i /tmp/ccsniffpiper -T "fields" -e list, of, fields
 
-sudo tshark -t ud -i /tmp/ccsniffpiper -T "fields" -E separator=, -e frame.time -e ipv6.addr -e icmpv6.code -e icmpv6.opt.type
+#sudo tshark -t ud -i /tmp/ccsniffpiper -T "fields" -E separator=, -e frame.time -e ipv6.addr -e icmpv6.code -e icmpv6.opt.type
+#sudo tshark -t ud -i /tmp/ccsniffpiper -T "fields" -E separator=, -e frame.time_relative -e ipv6.addr -e wpan.seq_no -e icmpv6.code -e icmpv6.opt.type 
+# ts command prepends timestamps. Can use the following with a pipe into tee for logging (e.g. tshark etc etc | ts -s | tee logfile.csv)
+sudo tshark -l -i /tmp/ccsniffpiper -T "fields" -E separator=, -e ipv6.addr -e wpan.seq_no -e icmpv6.code -e icmpv6.opt.type | ts -s 
 ```
+
+CSV files have following structure:
+
+```
+time src_addr, dst_addr, seqno, icmp_type, icmp_option_1, icmp_option_2
+```
+
+* `time`: the number of seconds since the beginning of the capture
+* `src_addr`: the originator of the packet
+* `dst_addr`: the destination of the packet
+* `seqno`: the sequence number -- a sent packet is the tuple of `(src, seqno)`. Repeats of this tuple are L2 retries
+* `icmp_type`: the kind of ICMP message ( see below )
+* `icmp_option_1,2`: the options on the RS and RA messages
+
+If all fields except for seqno are empty, then it is an L2 ACK.
 
 #### Code
 ICMPv6.code is 0x00 for both RS and RA messages
