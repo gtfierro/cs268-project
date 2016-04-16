@@ -89,3 +89,15 @@ enum {
   ND6_SERP_MESH_ANN = 8                                                                                                                                                                                                                                                                                                       
 }; 
 ```
+
+## Data sets
+
+7 node:
+* BR on for 20 sec
+* every 10 sec, add 1 node
+* wait for 30 sec
+
+10 node:
+* BR on for 20 sec
+* every 20 sec, add 1 node
+* wait for 30 sec
