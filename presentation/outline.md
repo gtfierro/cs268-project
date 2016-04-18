@@ -77,6 +77,10 @@ Given this, what are
       should advertise different prefixes, advertise the same prefix and use
       external routing infrastructure for inbound traffic, or have each mote
       support multiple interfaces/addresses.
+    - also explain the trade offs of different approaches of handling multiple
+      border routers.
+    - show a simple example of the border routers at work and the logic behind
+      them
 
 - **Make use of neighbors' power characteristics in routing**: 
   - since the nodes are duty-cycled, they should learn their neighbors'
@@ -101,3 +105,4 @@ Here we establish context for *why* we are doing the things we are doing.
 5. Support multiple BRs:
     Helps maintain 1-3 hop
     Different prefixes? Same prefix? How to keep reachability information consistent?
+
