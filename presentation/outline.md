@@ -83,3 +83,21 @@ Given this, what are
     schedules and route through powered nodes when/if possible. 
   - This will leverage existing work like B-MAC~\cite{polastre2004versatile}
     and the new 802.15.4e standard.
+
+## What Routing Needs To Do
+
+Here we establish context for *why* we are doing the things we are doing.
+
+1. Mote needs to discover its prefix:
+    ipv6 addresses for lowpans divided up into: 
+    `<64 bit shared prefix for mesh> : <48 bit MAC> : <16 bit ID>`
+2. Build Upward routes:
+    discover and decide upon a "preferred parent" for a default route
+3. Build Downward routes:
+    Construct a Neighbor Table of other motes w/n the same bcast domain
+    Construct a table of motes reachable through those neighbors
+4. Point to Point?
+    in 1-3 hops, "triangle routing" is acceptable
+5. Support multiple BRs:
+    Helps maintain 1-3 hop
+    Different prefixes? Same prefix? How to keep reachability information consistent?

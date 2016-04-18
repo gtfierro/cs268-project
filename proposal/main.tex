@@ -91,9 +91,19 @@
 \section{Problem Statement and Motivation}
 
 
-While a well-trod research area, existing solutions for routing in low-power, lossy networks (LLNs) consisting of constrained wireless nodes (motes) have failed to provide an effective and \emph{actionable} answer for how to perform low-overhead routing in real-world LLNs. Much of the existing work for routing solutions in LLNs has focused on performance in large-scale networks, neglecting to analyze the overhead of these protocols in ``real-world'' networks. In practice (the ``real-world''), the most common LLNs are single-hop or otherwise small-diameter multihop networks.
+While a well-trod research area, existing solutions for routing in low-power,
+lossy networks (LLNs) consisting of constrained wireless nodes (motes) have
+failed to provide an effective and \emph{actionable} answer for how to perform
+low-overhead routing in real-world LLNs. Much of the existing work for routing
+solutions in LLNs has focused on performance in large-scale networks,
+neglecting to analyze the overhead of these protocols in ``real-world''
+networks. In practice (the ``real-world''), the most common LLNs are single-hop
+or otherwise small-diameter multihop networks.
 
-The ultimate goal (perhaps beyond the scope of this project) is to evaluate the efficacy of the current routing standard for LLNs (RPL, see below) in small-diameter, multihop networks, and design and implement a routing protocol that fulfills the following requirements.
+The ultimate goal (perhaps beyond the scope of this project) is to evaluate the
+efficacy of the current routing standard for LLNs (RPL, see below) in
+small-diameter, multihop networks, and design and implement a routing protocol
+that fulfills the following requirements.
 
 \begin{itemize}
     \item \textbf{Control traffic should scale with the size of the network}: deployments that fit within a single link-local broadcast domain should not require any routing overhead. The complexity and number of control messages needed to maintain a multihop network should only grow as the network grows.
@@ -104,10 +114,21 @@ The ultimate goal (perhaps beyond the scope of this project) is to evaluate the 
 \end{itemize}
 
 \section{Prior Work}
-The large body of work for routing in low-power, lossy networks culminated with the development of the RPL standard~\cite{winter2012rpl}. However, the 160+ page specification has not seen a complete, open-source implementation despite the working group existing since 2008. RPL (unnecessarily) replicates many of the IPv6 control messages and provides many features (multiple DODAGS, multiple routing metrics) that are not used in practice.
 
-Work by Jonathan Hui demonstrated the practicality and efficacy of an IPv6-based routing solution in \cite{hui2008ip, hui2008extended}. We plan to leverage many of these approaches, taking advantage of recent changes in IPv6 RFCs and advances in hardware.
-Some of this work was extended in subsequent protocols such as Hydro~\cite{dawson2010hydro}, which only installs point-to-point routes as the network needs them, instead of wasting control messages establishing routes where they may not be needed at all. We want to
+The large body of work for routing in low-power, lossy networks culminated with
+the development of the RPL standard~\cite{winter2012rpl}. However, the 160+
+page specification has not seen a complete, open-source implementation despite
+the working group existing since 2008. RPL (unnecessarily) replicates many of
+the IPv6 control messages and provides many features (multiple DODAGS, multiple
+routing metrics) that are not used in practice.
+
+Work by Jonathan Hui demonstrated the practicality and efficacy of an
+IPv6-based routing solution in \cite{hui2008ip, hui2008extended}. We plan to
+leverage many of these approaches, taking advantage of recent changes in IPv6
+RFCs and advances in hardware.  Some of this work was extended in subsequent
+protocols such as Hydro~\cite{dawson2010hydro}, which only installs
+point-to-point routes as the network needs them, instead of wasting control
+messages establishing routes where they may not be needed at all. We want to
 explored this same adaptive approach to routing protocols.
 
 Other LLN routing work such as CTP~\cite{fonseca2006collection} is not IP
