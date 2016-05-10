@@ -153,7 +153,7 @@ We can then start criticizing it:
         - 48bit MAC, last 16 bits are a unique node identifier
         - upshot: can compress the address of a mote into 2 bytes (2^16-1 addresses)
         - guaranteed unique address: no need to check for dups
-- too chatty:
+- constants: too chatty?
     - rfc6775 attempts to adapt for 6LowPANs:
     - "Minimize signaling by avoiding the use of multicast
       flooding and reducing the use of link-scope multicast messages"
@@ -165,7 +165,13 @@ We can then start criticizing it:
         - RS interval: 10s
         - max RS : 3
         - max Rs interval - 60s
-    - TODO: go through NUD params in 4861 and 6775
+- NUD: too chatty
+    - send unicast NS messages for registering IPv6 addresses
+    - send messages to verify that default routers are still reachable
+    - host needs to maintain "NCE" in the router
+    - NUD defines probes, but can be suppressed using reachability confirmation
+      (defined in 4861 and 6775). HOWEVEr does not allow for letting stuff go stale
+    - registering/deregestering w/ routers using AR0 options -- why do we need these
 \fi
 
 \section{Prior Work -- Zain}
