@@ -12,9 +12,9 @@ pdf: $(PDF)
 
 %.pdf: %.tex $(TEXFILES)
 	pdflatex $(FLAGS) $*
-	#bibtex $*
-	#pdflatex $(FLAGS) $*
-	#pdflatex $(FLAGS) $*
+	bibtex $*
+	pdflatex $(FLAGS) $*
+	pdflatex $(FLAGS) $*
 
 opt: $(PDF)
 	gs -q -dBATCH -dNOPAUSE -dSAFER -sDEVICE=pdfwrite \

@@ -1,0 +1,46 @@
+\section{Evaluation Platform}
+
+Traditionally, the storage constraints of embedded platforms have forced an opacity onto embedded networking stacks, making it difficult to add monitoring logic without removing functionality from the stack itself.
+The iterative process of altering the networking stack for any sort of parametric study is intractable for more than a few parameters.
+Usually, these parameter spaces are explored with the help of a network simulator such as COOJA~\cite{cooja}, OMNET++~\cite{omnet++} or NS2~\cite{ns2}.
+While helpful for establishing estimates of how a protocol under a set of parameters might perform, it is difficult to evaluate the practicality of a protocol without having implemented it in a real system.
+Using a modern platform with relaxed storage constraints and increased programmability, we demonstrate a novel platform for full-stack network monitoring on real-world WSN deployments.
+
+\subsection{Hardware Platform}
+
+The hardware platform for typically used network evaluations is the TelosB mote (used in \cite{ko2011evaluating} and modeled in COOJA for network simulations).
+The TelosB, introduced in 2005~\cite{polastre2005telos},  employs a 16-bit MSP430 microprocessor with 48 KB ROM and 10 KB RAM.
+This was ample space 10 years ago, but as the size and complexity of IPv6 standards and routing standards increased, the increased pressure on code space informed a set of compromises in the design of the TinyOS networking stack, our focal operating system.
+These compromises and how they affect the our goal of iterative, parameter-driven evaluation are explored in more detail below.
+
+The recently-introduced Storm platform~\cite{andersen2016system} used in this study has a 32-bit ARM Cortex M4, with 512 KB ROM and 64 KB RAM, offering much more processing power and storage capabilities.
+
+\subsection{Software Platform}
+\if 0
+talk about tinyos? blip?
+
+Many recent features of  ipv6 nd not implemented
+many constants vital to the protocol buried deep in header files with #define so that they
+  can be placed into more plentiful ROM. Can't be edited at runtime
+\fi
+
+\if 0
+- many prior measurements done exclusively on simulators
+    - few experiments run in the real world
+    - if using a Java implementation, can totally put in all features you want and
+      easy to chagne parameters, but this doesn't help us evaluate how well protocol works
+- Hardware:
+    - advancements in hardware make
+
+
+- establish the measurement apparatus for these:
+    - TinyOS Kernel
+    - Syscalls in Lua
+        - challenges developing syscalls
+    - Dynamic code loading in Lua
+    - fitting everything into the mote
+    - "WAX stack"
+        - follow similar structure to the sensys paper
+        - the components of a network experiment code
+        - how to we do logging, where it goes
+\fi
