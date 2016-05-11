@@ -17,6 +17,55 @@ The recently-introduced Storm platform~\cite{andersen2016system} used in this st
 
 \subsection{Software Platform}
 
+In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
+The motes run a port of TinyOS 2.x, using the Berkeley Low-Power IPv6 stack (BLIP) and TinyRPL.
+Over this, the nodes run the Synergy kernel with a Lua userland~\cite{andersen2016system}, which introduces a dynamic, scripting environment with visibility into the inner workings of the operating system (and thus network stack).
+We extend this base functionality with:
+\begin{itemize}
+\item a set of new syscalls with the ability to edit routing and neighbor tables, and view control traffic and other network telemetry,
+\item a userland library for conducting networking studies using an ``Active Networks'' methodology
+\item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
+\end{itemize}
+
+\subsection{Synergy Kernel and Lua Userland}
+
+\begin{table*}[ht]
+\centering
+\begin{tabular}{| l | l |}
+\hline
+\textbf{Syscall} & \textbf{Description} \\ \hline \hline
+\multicolumn{2}{|c|}{\texttt{StormSysInfoP.nc}} \\ \hline
+\verb`storm.net.retrystats()` & Retrieves transmission and retransmission counts \\ \hline
+\verb`storm.net.thopstats()` & Retrieves number of RS and RA with 3hop options sent \\ \hline
+\verb`storm.net.rplstats()` & Retrieves number of DIO, DIS and DAO messages sent \\ \hline
+\verb`storm.net.stats()` & BLIP-stats: packets sent, forwarded, dropped, fragmented \\ \hline
+\multicolumn{2}{|c|}{\texttt{StormRoutingTableP.nc}} \\ \hline
+\verb`storm.os.addroute(pfx, len, nhop, iface)` & Add route via nexthop over given interface to routing table \\ \hline
+\verb`storm.os.delroute(routekey)` & Removes given route from routing table \\ \hline
+\verb`storm.os.lookuproute(pfx, pfx)` & Returns routing table entry matching the given prefix, length \\ \hline
+\verb`storm.os.gettable()` & Returns all valid entries in the routing table \\ \hline
+\verb`storm.os.flushroutes()` & Deletes all entries from the routing table \\ \hline
+\verb`storm.os.flushneighbors()` & Deletes all entries from neighbor table \\ \hline
+
+\end{tabular}
+\caption{List of new syscalls implemented for stack monitoring. Each of the \texttt{stats()} methods has a corresponding \texttt{clear()} to erase the cumulative counts.}
+\label{table:syscalls}
+\end{table*}
+
+A detailed study of a layer 3 routing protocol, such as RPL, needs to be able to pull information from layer 2 and layer 1 components in the networking stack.
+The Synergy kernel exposes TinyOS functionality to userland applications through the use of syscalls, giving applications the ability to run timers, send or receive network traffic, and write to GPIO pins or other peripherals.
+These syscalls are supported within TinyOS by a set of drivers, which are special TinyOS components.
+We add two additional drivers: \texttt{StormRoutingTableP.nc}, which lets applications view and edit the routing and neighbor tables in BLIP; and \texttt{StormSysInfoP.nc}, which exposes routing state, packet counts, retry counts and routing control traffic counts, among other statistics.
+A list of the added syscalls can be found in Table~\ref{table:syscalls}.
+
+%(Embedded) Lua~\cite{elua} is an embeddable, lightweight, stack-based, high-level scripting language that is easily extensible in C.
+%This extensibility allows us to augment
+
+\if 0
+Introduce the software stack we're working with:
+-
+\fi
+
 %The storage constraints of the older platforms on which BLIP and TinyRPL were developed led to the use of compile-time configuration options (e.g. %\verb`#define` and \verb`#ifdef`) to remove unused features from the compiled stack when flashing motes.
 %Although the Storm platform does not possess the same storage constraints, the status of the current codebase limits the %ability to use userland applications to configure the TinyOS networking stack.
 %Refactoring the codebase to use run-time rather than compile-time parameters is a not insignificant task, but the WAX methodology could be easily extended to pass configuration options to the TinyOS networking stack to change the choice of objective function or other RPL parameters.
