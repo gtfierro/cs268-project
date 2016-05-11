@@ -3,57 +3,57 @@
 \subsection{Overview -- Zain}
 \if 0
 - design goals
-	- Control traffic should decrease as network converges
-	- Support duty cycled nodes
-	- Support multiple border routers
+    - Control traffic should decrease as network converges
+    - Support duty cycled nodes
+    - Support multiple border routers
 - salient features
-	- Build using current IPv6 ND standard
-	- Broadcast when you can
-	- Use application traffic to maintain mesh
-	- less control traffic overhead
+    - Build using current IPv6 ND standard
+    - Broadcast when you can
+    - Use application traffic to maintain mesh
+    - less control traffic overhead
 \fi
 
 \subsection{Messages -- Zain}
 \if 0
 - Elements
-	- Mesh Prefix
-		- <64 bit prefix> : <48 bit MAC> : <16 bit ID>
-		- mote must discover it's prefix
-	- Upward Routes
-		- built thru preferred parent
-	- Downward Routes
-		- create neighbor table from bcasts
-		- construct forwarding table of motes reachable through neighbors
-	- Point to Point
-		- simple triangle routing
-		- sufficient enough bc max 3 hop network
-	- Redundancy
-		- multiple BR's
-		- multiple potential parents
+    - Mesh Prefix
+        - <64 bit prefix> : <48 bit MAC> : <16 bit ID>
+        - mote must discover it's prefix
+    - Upward Routes
+        - built thru preferred parent
+    - Downward Routes
+        - create neighbor table from bcasts
+        - construct forwarding table of motes reachable through neighbors
+    - Point to Point
+        - simple triangle routing
+        - sufficient enough bc max 3 hop network
+    - Redundancy
+        - multiple BR's
+        - multiple potential parents
 - Protocol
-	- Router Solicitation
-		- when
-			- mote goes online and not part of mesh
-		- includes
-			- power profile
-			- phase info
-	- Router Advertisement (Mesh Info)
-		- when
-			- trickle timer
-		- includes
-			- mesh prefix
-			- power profile
-			- hop count
-			- neighbor set
-			- mesh schedule info
-	- Router Advertisement (Announcement)
-		- when
-			- mote joins mesh
-		- includes
-			- hop count
-			- preferrent parent
-			- neighbor set
-		- optional
+    - Router Solicitation
+        - when
+            - mote goes online and not part of mesh
+        - includes
+            - power profile
+            - phase info
+    - Router Advertisement (Mesh Info)
+        - when
+            - trickle timer
+        - includes
+            - mesh prefix
+            - power profile
+            - hop count
+            - neighbor set
+            - mesh schedule info
+    - Router Advertisement (Announcement)
+        - when
+            - mote joins mesh
+        - includes
+            - hop count
+            - preferrent parent
+            - neighbor set
+        - optional
 \fi
 
 \subsection{Border Router -- Zain}
