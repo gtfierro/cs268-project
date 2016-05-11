@@ -4,7 +4,10 @@ Traditionally, the storage constraints of embedded platforms have forced an opac
 The iterative process of altering the networking stack for any sort of parametric study is intractable for more than a few parameters.
 Usually, these parameter spaces are explored with the help of a network simulator such as COOJA~\cite{cooja}, OMNET++~\cite{omnet++} or NS2~\cite{ns2}.
 While helpful for establishing estimates of how a protocol under a set of parameters might perform, it is difficult to evaluate the practicality of a protocol without having implemented it in a real system.
+
 Using a modern platform with relaxed storage constraints and increased programmability, we demonstrate a novel platform for full-stack network monitoring on real-world WSN deployments.
+To facilitate empirical studies, we construct a mechanism that enables chunks of Lua code to be disseminated over a network, safely assembled on each node, and then executed to subject the full network to a well-defined load or traffic pattern. 
+These \emph{code capsules} define the start and end conditions of an experiment, pattern generation, data acquisition and report delivery. 
 
 \subsection{Hardware Platform}
 
@@ -36,7 +39,16 @@ We extend this base functionality with:
 \item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
 \end{itemize}
 
-Figure~\ref{fig:nodestack} illustrates the full mote platform. \todo{talk about it ocnee the figure is fixed so that WAX is not there}
+Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each node in the network to be measured. \todo{talk about it ocnee the figure is fixed so that WAX is not there. Also needs external/internal flash on the diagram?}
+When each node boots, it first performs the usual TinyOS initializations, and then jumps into the userland code and starts executing the equivalent of \texttt{main.lua}.
+We preempt this boot sequence so that before the userland code is executed, the kernel reads from a particular location in external memory that establishes which routing protocol and parameters it should use.
+This requires some trickery, described below.
+
+Once in \texttt{main.lua}, the network measurement platform performs its initialization before jumping into the received code capsule to start the experiment.
+
+Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
+This coordinator disseminates code, triggers the beginning of the experiment and retrieves the reports from the nodes after the experiment.
+The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for for measurement application such as for measuring the packet reception ratio.
 
 \subsection{Synergy Kernel and Lua Userland}
 
@@ -79,24 +91,40 @@ If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua cod
 Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
 It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
 
-A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
-This places limits on what code must be placed on the mote before deployment and what code can be dynamically loaded over the network after the mote is deployed.
-Broadly, these constraints force low-level routing protocol code to be programmed into the ROM (not lost on reboot) of each mote, along with the methods handling code reassembly and the basic methods for the network measurement platform described below.
-Custom telemetry methods and experiment execution scripts can be loaded dynamically over the network.
+\subsection{Network Measurement Platform}
+
+Each network experiment comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
+Our network measurement platform provides default methods for each of these elements, and new methods and data structures can also be disseminated over the network and used in subsequent experiments.
+Code capsules sent over the network and received at each node describe the state machine of actions to be taken over the course of a network experiment.
+While
+
+logs the data
+%the network under study, allowing a separation between experiment setup and
+%execution and removing a reliance on the targeted network or protocol for the
+%construction of an experiment.
+
+
+Now, we will describe how the platform implements each of these five elements.
+
+\textbf{Initialization}:
+
+\subsection{Tricks and Limitations}
 
 Traditionally, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
 As discussed below, currently the only way to determine which routing protocol should be run is to check at boot for some flag and determine which routing protocol to start.
 While conceivably one could ``stop''\footnote{Using TinyOS's \texttt{StdControl} interface, which provides both \texttt{.start()} and \texttt{.stop()} methods} one routing protocol and switch to another without rebooting, this would also require stopping and cancelling the family of timers and triggers required by the previously running routing protocol.
 
-\subsection{Network Measurement Platform}
+A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
+This places limits on what code must be placed on the mote before deployment and what code can be dynamically loaded over the network after the mote is deployed.
+Broadly, these constraints force low-level routing protocol code to be programmed into the ROM (not lost on reboot) of each mote, along with the methods handling code reassembly and the basic methods for the network measurement platform described below.
+Custom telemetry methods and experiment execution scripts can be loaded dynamically over the network.
 
-Each network experiment comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
-Our network measurement platform provides default methods for each of these elements, which can be strung together using scripting code sent over the network.
-New methods and data structures can also be disseminated 
+A possible solution for removing this limitation uses the external flash memory on the Storm board to store Lua program text, and then introduce a flag read on boot that performs the above process by loading code from memory rather than receiving over the network.
+The disadvantage here is that the textual representation of Lua code is much larger than the resulting symbols, so this would dramatically reduce the amount of log space available for the networking management platform.
 
 \if 0
 Introduce the software stack we're working with:
-- 
+-
 \fi
 
 %The storage constraints of the older platforms on which BLIP and TinyRPL were developed led to the use of compile-time configuration options (e.g. %\verb`#define` and \verb`#ifdef`) to remove unused features from the compiled stack when flashing motes.
