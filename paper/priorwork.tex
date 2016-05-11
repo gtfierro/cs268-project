@@ -1,0 +1,56 @@
+\section{Prior Work -- Zain}
+
+\subsection{Networking Studies}
+Much of the published work around RPL has focused on how RPL scales as the size
+of the network increased, both in terms of path quality and convergence time to
+a stable state under simulation. 
+
+\cite{ko2011evaluating} compares the performance of TinyRPL with the previous
+de-factor routing protocol for TinyOS, the Collection Tree Protocol
+(CTP)~\cite{ctp}. The study uses the COOJA~\cite{cooja} simulation engine to
+perform parametric studies, but motivates many of its conclusions from a real
+deployment of 50 TelosB nodes. The real deployment is used to evaluate packet
+reception ratios of application traffic, and the study of RPL control traffic
+is left to the network simulation. It concludes that RPL matches the
+performance of the well-engineered CTP routing protocol while providing
+additional routing features (such as downward routes and multiple parents).
+
+The studies contained in \cite{tripathi2010performance} draw a topology and a
+link failure model from a real-world deployment and apply these measurements to
+an OMNET++~\cite{omnet++} simulation that examines path quality, the overhead
+of control packets and the size of routing tables. The study concluded in part
+that the inclusion of a correctly configured Trickle timer has a significant influence
+on the overhead of RPL control traffic.
+
+Some work \cite{clausen2011critical} has also been done on evaluating the
+specification of RPL, using the NS2~\cite{ns2} simulator to complement
+conclusions. The paper identifies the ``underspecification'' of RPL -- certain
+implementation details that are not explicit in the specification document that
+can significantly alter the performance of RPL.
+
+The space and computational constraints of best-in-class hardware platforms at
+the time of RPL's development made it difficult to introduce code for
+evaluatating RPL on the motes themselves. Evaluations were made either through
+network simulation engines or through the use of elaborate testbeds that used
+back channels on deployed nodes to monitor their
+behavior~\cite{fonseca2008tracking}. 
+
+The research domain of Active Networks, first proposed in
+\cite{tennenhouse2002towards}, enabled a new class of applications that utilize
+computation within a network. We adopt the approach of this body of work to
+form a set of tools for studying network telemetry.
+
+The Active Node Transfer System (ANTS)~\cite{wetherall1998ants} formulated a
+node runtime for an active network that enabled dynamically deploying network
+protocols, such as multicast services, into a running network. Later work in
+code capsules (\cite{tennenhouse1997survey}, \cite{wetherall2002active}) argued
+that code capsules are best used as glue to tie together capabilities provided
+by active nodes. While our work treats the routing code as fixed and does not
+leverage the Active Networks notion of allowing users to customize the
+forwarding of their packets, we do place active node containers in the network
+and performing coordination and traffic generation through an executed capsule.
+This approach is similar to Scriptroute~\cite{spring2003scriptroute}, which
+enabled Internet users to conduct distributed network measurements
+
+\subsection{Routing Protocols -- Zain}
+
