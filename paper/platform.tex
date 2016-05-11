@@ -15,6 +15,15 @@ These compromises and how they affect the our goal of iterative, parameter-drive
 
 The recently-introduced Storm platform~\cite{andersen2016system} used in this study has a 32-bit ARM Cortex M4, with 512 KB ROM and 64 KB RAM, offering much more processing power and storage capabilities.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=.9\linewidth]{figs/NodeStack}
+\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio
+stack that would otherwise be difficult to incorporate.}
+\label{fig:nodestack}
+\end{figure}
+
+
 \subsection{Software Platform}
 
 In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
@@ -26,6 +35,8 @@ We extend this base functionality with:
 \item a network measurement platform Lua library for conducting networking studies
 \item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
 \end{itemize}
+
+Figure~\ref{fig:nodestack} illustrates the full mote platform. \todo{talk about it ocnee the figure is fixed so that WAX is not there}
 
 \subsection{Synergy Kernel and Lua Userland}
 
@@ -68,20 +79,20 @@ If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua cod
 Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
 It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
 
+A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
+This places limits on what code must be placed on the mote before deployment and what code can be dynamically loaded over the network after the mote is deployed.
+Broadly, these constraints force low-level routing protocol code to be programmed into the ROM (not lost on reboot) of each mote, along with the methods handling code reassembly and the basic methods for the network measurement platform described below.
+Custom telemetry methods and experiment execution scripts can be loaded dynamically over the network.
+
+Traditionally, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
+As discussed below, currently the only way to determine which routing protocol should be run is to check at boot for some flag and determine which routing protocol to start.
+While conceivably one could ``stop''\footnote{Using TinyOS's \texttt{StdControl} interface, which provides both \texttt{.start()} and \texttt{.stop()} methods} one routing protocol and switch to another without rebooting, this would also require stopping and cancelling the family of timers and triggers required by the previously running routing protocol.
 
 \subsection{Network Measurement Platform}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=.9\linewidth]{figs/NodeStack}
-\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio
-stack that would otherwise be difficult to incorporate.}
-\label{fig:nodestack}
-\end{figure}
-
-Our network measurement platform comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
-
-
+Each network experiment comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
+Our network measurement platform provides default methods for each of these elements, which can be strung together using scripting code sent over the network.
+New methods and data structures can also be disseminated 
 
 \if 0
 Introduce the software stack we're working with:
@@ -115,6 +126,8 @@ many constants vital to the protocol buried deep in header files with #define so
         - challenges developing syscalls
     - Dynamic code loading in Lua
     - fitting everything into the mote
+        - memory issues
+        -  trigger issues: receive a rogue message can mess everything up because function is still there and wired up!
     - "WAX stack"
         - follow similar structure to the sensys paper
         - the components of a network experiment code
