@@ -23,7 +23,7 @@ Over this, the nodes run the Synergy kernel with a Lua userland~\cite{andersen20
 We extend this base functionality with:
 \begin{itemize}
 \item a set of new syscalls with the ability to edit routing and neighbor tables, and view control traffic and other network telemetry,
-\item a userland library for conducting networking studies using an ``Active Networks'' methodology
+\item a network measurement platform Lua library for conducting networking studies
 \item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
 \end{itemize}
 
@@ -58,12 +58,34 @@ These syscalls are supported within TinyOS by a set of drivers, which are specia
 We add two additional drivers: \texttt{StormRoutingTableP.nc}, which lets applications view and edit the routing and neighbor tables in BLIP; and \texttt{StormSysInfoP.nc}, which exposes routing state, packet counts, retry counts and routing control traffic counts, among other statistics.
 A list of the added syscalls can be found in Table~\ref{table:syscalls}.
 
-%(Embedded) Lua~\cite{elua} is an embeddable, lightweight, stack-based, high-level scripting language that is easily extensible in C.
-%This extensibility allows us to augment
+(Embedded) Lua~\cite{elua} is an embeddable, lightweight, stack-based, high-level scripting language that is easily extensible in C.
+Because Lua is an interpreted language, we can add new code at runtime in the form of \emph{code capsules} which we disseminate through a network.
+Deployed applications can get large (1800 bytes for a simple traffic generation program) compared to 802.15.4 frames, which are only 127 bytes, predicating the need for a code reassembly mechanism.
+The mechanism for dynamically adding logic to a running mote is enabled through a C function that accepts string buffers that contain segments of code.
+We deliver code over TCP, using a recent adaptation of the BSD TCP stack to TinyOS.
+Each mote listens on a known port for incoming code segments, and hands them to the built-in Lua-C API function \texttt{LuaL\_loadbuffer}, which attempts to evaluate the buffer as a chunk of Lua code.
+If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua code --- then it is executed, the results are placed on the Lua stack and interpreted, and the buffer is emptied.
+Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
+It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
+
+
+\subsection{Network Measurement Platform}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=.9\linewidth]{figs/NodeStack}
+\caption{The full "Wireless Active Networks" (WAX) hardware/software stack for network experimentation. Kernel
+syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio
+stack that would otherwise be difficult to incorporate.}
+\label{fig:nodestack}
+\end{figure}
+
+Our network measurement platform comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
+
 
 \if 0
 Introduce the software stack we're working with:
--
+- 
 \fi
 
 %The storage constraints of the older platforms on which BLIP and TinyRPL were developed led to the use of compile-time configuration options (e.g. %\verb`#define` and \verb`#ifdef`) to remove unused features from the compiled stack when flashing motes.
