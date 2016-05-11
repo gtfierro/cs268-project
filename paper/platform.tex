@@ -119,18 +119,18 @@ This method can actually be disseminated through the network, allowing the start
 
 \begin{luacode}
 reset_sock = storm.net.udpsocket(6666, function(msg, ip)
-    if not heard_reset then
-        heard_reset = true
-        if msg == "RAND" then
-            wait = wait + math.random(10)
+  if not heard_reset then
+    heard_reset = true
+    if msg == "RAND" then
+      wait = wait + math.random(10)
+    end
+    storm.os.invokeLater(wait*storm.os.SECOND, storm.os.reset)
+    cord.new(function()
+      for i=1,5 do
+        cord.await(storm.os.invokeLater, math.random(3)*storm.os.SECOND)
+          storm.net.sendto(reset_sock, "RAND", "ff02::1", 6666)
         end
-        storm.os.invokeLater(wait*storm.os.SECOND, storm.os.reset)
-        cord.new(function()
-            for i=1,5 do
-                cord.await(storm.os.invokeLater, math.random(3)*storm.os.SECOND)
-                storm.net.sendto(reset_sock, "RAND", "ff02::1", 6666)
-            end
-        end)
+      end)
     end
 end)
 \end{luacode}
