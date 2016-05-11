@@ -99,11 +99,6 @@ Our network measurement platform provides default methods for each of these elem
 Code capsules sent over the network and received at each node describe the state machine of actions to be taken over the course of a network experiment.
 While
 
-logs the data
-%the network under study, allowing a separation between experiment setup and
-%execution and removing a reliance on the targeted network or protocol for the
-%construction of an experiment.
-
 
 Now, we will describe how the platform implements each of these five elements.
 
@@ -150,11 +145,29 @@ storm.net.sendto("ff02::1",6666,"reset!")
 
 We could also of course send a packet to port 6666 on a node, which would then start the flooding process, but by having the original node broadcast, we can reduce the flooding time by a few seconds\footnote{It is also much more fun to execute code over the network rather than just sending a packet}.
 
-\textbf{Traffic Generation:} 
+\textbf{Traffic Generation:}  This block of code is the logic that runs during the experiment in question and handles both traffic generation and network monitoring.
+The primary concerns of the generation component are determing how often the node sends and to whom.
+The two most common patterns of this are a periodic send or a request-response or ``echo'' generator.
+The event-driven nature of the userland networking interface facilitates these patterns of traffic generation.
+For example, the logic to respond to a request can be invoked in the callback for a received packet on a given port.
+Additionally, dynamic code loading allows capsules to easily define point-to-multipoint, multipoint-to-point or even point-to-point traffic.
+
+Monitoring and statistical code for the eventual report is interspersed in the capsule logic for generating traffic and notifications of received traffic.
+Beyond the network statistics provided by the kernel interface (described in Table~\ref{table:syscalls}), it is up to the code capsule to determine the logic for what statistics are kept.
+The standard data structures provided by Lua (integers, tables and arrays) coupled with storage syscalls for writing to the log enable the composition of most common reporting and statistical techniques: maps/tables, histograms and counters.
+
+By storing data in non-volatile flash memory as the experiment is run, we can maintain a separation from the execution of the study, removing a reliance on the targeted network or protocol to report the data.
+Network partitions and ``black holes'' are very real possibilities in wireless sensor network research.
+If telemetry data is not stored locally during an experiment and instead used as the application traffic, then any network issues (including the period at the beginning of an experiment when routing has not been established) result in a loss of data.
 
 \textbf{Stop Condition:}
+The reporting phase of an experiment is a distinct phase to avoid the act of reporting statistics interfering with the behavior of the network under study.
+Each network experiment defines a ``stop'' condition, which can be defined by sending a certain number of packets, sending traffic for a certain amount of time, or receiving a ``stop'' signal from the coordinating node.
+Here, it is often helpful to cancel timers or erase callbacks upon receiving the stop condition so that the network experiment does not continue to send data, adjust routing and mutate data structures while reporting is taking place.
 
 \textbf{Reporting:}
+
+talk about saving data to the log. write truncation record. w/ syscalls we get the following data points that we save:
 
 \subsection{Tricks and Limitations}
 
