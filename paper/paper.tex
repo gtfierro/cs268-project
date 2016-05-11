@@ -10,6 +10,7 @@
 \newcolumntype{L}{>{\arraybackslash}m{3cm}}
 \usepackage{minted}
 \newminted{sql}{mathescape, numbersep=5pt, frame=lines, framesep=2mm, fontsize=\footnotesize}
+\newminted{lua}{mathescape, numbersep=5pt, frame=lines, framesep=2mm, fontsize=\footnotesize}
 \usepackage{MnSymbol}
 \def\prebreak{\raisebox{0ex}[0ex][0ex]{\ensuremath{\rhookswarrow}}}
 \def\postbreak{\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}}}
@@ -132,38 +133,65 @@ We can then start criticizing it:
 
 \subsection{IPv6 Neighbor Discovery -- Gabe }
 \if 0
-RPL is not the only standard that would need to be revisited for wireless LLNs.
+- RPL is not the only standard that would need to be revisited for wireless LLNs.
+- IPv6 Neighbor Discovery is intended to provide following features:
+    - router discovery: find routers on attached link
+    - parameter discovery:
+        - prefix discovery, link MTU, hop limit, etc
+    - stateless address autoconfiguration
+    - address resolution
+    - neighbor unreachability detection (NUD)
+    - duplicate address detection
+- these are more features than are needed for WSNs because of restrictions:
+    - NUD: no need to maintain connectivity to neighbors
+        - use the application traffic to determine if link is still good
+        - if you don't use the link, don't waste time and energy keeping it up:
+            - places pressure on the channel because you can only broadcast!
+        - IP is best-effort: use this leeway!
+    - duplicate address detection:
+        - a common way of configuring motes is SLAAC
+        - one way of doing this is 64-bit prefix + 64-bit EUI-64 address
+        - 48bit MAC, last 16 bits are a unique node identifier
+        - upshot: can compress the address of a mote into 2 bytes (2^16-1 addresses)
+        - guaranteed unique address: no need to check for dups
+- constants: too chatty?
+    - rfc6775 attempts to adapt for 6LowPANs:
+    - "Minimize signaling by avoiding the use of multicast
+      flooding and reducing the use of link-scope multicast messages"
+    - original constants: cite them
+    - rfc6775 new constants:
+        - max RAs: 3
+        - min delay btwn RA: 10s
+        - max RA delay time 2 sec
+        - RS interval: 10s
+        - max RS : 3
+        - max Rs interval - 60s
+- NUD: too chatty
+    - send unicast NS messages for registering IPv6 addresses
+    - send messages to verify that default routers are still reachable
+    - host needs to maintain "NCE" in the router
+    - NUD defines probes, but can be suppressed using reachability confirmation
+      (defined in 4861 and 6775). HOWEVEr does not allow for letting stuff go stale
+    - registering/deregestering w/ routers using AR0 options -- why do we need these
 \fi
 
-\section{Prior Work -- Zain}
+\input{priorwork}
 \if 0
 - in thesis: list of improvements to RPL
     - discuss combined metrics -> better optimization (from thesis)
         - hop count
         - link latency
         - etc etc
-- in literature: 
+- in literature:
     - have other people done small diameter WSN routing?
     - other simple routing protocols for similar situations
 \fi
 
 \input{3hop}
 
-\section{Evaluation Platform -- Gabe }
-\if 0
-- establish the measurement apparatus for these:
-    - TinyOS Kernel
-    - Syscalls in Lua
-        - challenges developing syscalls
-    - Dynamic code loading in Lua
-    - fitting everything into the mote
-    - "WAX stack"
-        - follow similar structure to the sensys paper
-        - the components of a network experiment code
-        - how to we do logging, where it goes
-\fi
+\input{platform}
 
-\section{Evaluation}
+\section{Evaluation} \label{section:evaluation}
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,references}
