@@ -166,8 +166,21 @@ Each network experiment defines a ``stop'' condition, which can be defined by se
 Here, it is often helpful to cancel timers or erase callbacks upon receiving the stop condition so that the network experiment does not continue to send data, adjust routing and mutate data structures while reporting is taking place.
 
 \textbf{Reporting:}
+From our new syscalls, we can retrieve the following information:
+\begin{itemize}
+\item The number of transmitted packets, including the number of software retransmissions
+\item The number of IPv6 neighbor discovery messages sent and received (Solicitations and Advertisements)
+\item The number of packets sent, forward, dropped or fragmented
+\item How many DIS, DIO and DAO messages sent and received by the RPL implementation
+\item The number and identities of routing and neighbor table entries
+\item The current hop count or rank of the node
+\item A sequence number to track the order of samples
+\end{itemize}
 
-talk about saving data to the log. write truncation record. w/ syscalls we get the following data points that we save:
+The network experiment samples these values at regular intervals and saves them as fixed-size records in the Storm's external flash.
+These logs start at a given memory position and advance upward.
+During the reporting phase, the log is replayed from the start position and the node transmits collections of records to a collection point (typically the coordinator node).
+As part of the stop condition for a network experiment, the network measurement platform writes a \texttt{truncate} record to the log to indicate a stopping point for log replay.
 
 \subsection{Tricks and Limitations}
 
