@@ -6,8 +6,8 @@ Usually, these parameter spaces are explored with the help of a network simulato
 While helpful for establishing estimates of how a protocol under a set of parameters might perform, it is difficult to evaluate the practicality of a protocol without having implemented it in a real system.
 
 Using a modern platform with relaxed storage constraints and increased programmability, we demonstrate a novel platform for full-stack network monitoring on real-world WSN deployments.
-To facilitate empirical studies, we construct a mechanism that enables chunks of Lua code to be disseminated over a network, safely assembled on each node, and then executed to subject the full network to a well-defined load or traffic pattern. 
-These \emph{code capsules} define the start and end conditions of an experiment, pattern generation, data acquisition and report delivery. 
+To facilitate empirical studies, we construct a mechanism that enables chunks of Lua code to be disseminated over a network, safely assembled on each node, and then executed to subject the full network to a well-defined load or traffic pattern.
+These \emph{code capsules} define the start and end conditions of an experiment, pattern generation, data acquisition and report delivery.
 
 \subsection{Hardware Platform}
 
@@ -117,29 +117,38 @@ This is also the time when any code would be loaded from the external flash memo
 For complex network measurements, this may be accomplished with the aid of a time synchronization technique, but in the small networks we are currently investigating, a simple ``flood-sleep-reset-start'' method suffices.
 This method can actually be disseminated through the network, allowing the start method to be customized for the experiment at hand.
 
+The code for the flooding start mechanism used for our network measurements is below.
+It defines a socket with a callback invoked when the socket receives a packet.
+The callback schedules a software reset\footnote{This can be switched out for a routing/neighbor-table flush to persist dynamically loaded code} to be execued in 20 seconds (configurable), and also schedules the three ``reset'' broadcast packets to be sent with some jitter between them.
+Jitter helps increase the probability that all nodes receive a reset signal; otherwise, if multiple nodes both receive a reset broadcast and they send a broadcast at the same time, those broadcasts may collide at a third node such that it does not receive either.
+
 \begin{luacode}
-reset_sock = storm.net.udpsocket(6666, function(msg, ip)
-  if not heard_reset then
-    heard_reset = true
-    if msg == "RAND" then
-      wait = wait + math.random(10)
-    end
-    storm.os.invokeLater(wait*storm.os.SECOND, storm.os.reset)
-    cord.new(function()
-      for i=1,5 do
-        cord.await(storm.os.invokeLater, math.random(3)*storm.os.SECOND)
-          storm.net.sendto(reset_sock, "RAND", "ff02::1", 6666)
-        end
-      end)
-    end
+-- base wait of 20 seconds
+wait = 20
+-- listen on port 6666 for reset commands
+rsock = storm.net.udpsocket(6666, function()
+ -- truncate flooding
+ if not heard_reset then
+  heard_reset = true
+  storm.os.invokeLater(wait*SECOND, storm.os.reset)
+  cord.new(function()
+   for i=1,5 do
+    -- jitter on bcast to avoid conflicts
+    sleep(3*SECOND)
+    storm.net.sendto("ff02::1", 6666 "reset!")
+   end
+  end)
+ end
 end)
 \end{luacode}
 
-And then we start it with
+Once the function has been disseminated to all nodes, we choose a node to start the flooded reset by sending the following code capsule to any node, which broadcasts the reset command on behalf of the coordinating computer which has no 802.15.4 radio.
+
 \begin{luacode}
-t1=storm.os.invokeLater(5*storm.os.SECOND, storm.os.reset) 
-storm.net.sendto(reset_sock, "RESET", "ff02::1", 6666)
+storm.net.sendto("ff02::1",6666,"reset!")
 \end{luacode}
+
+We could also of course send a packet to port 6666 on a node, which would then start the flooding process, but by having the original node broadcast, we can reduce the flooding time by a few seconds\footnote{It is also much more fun to execute code over the network rather than just sending a packet}.
 
 \subsection{Tricks and Limitations}
 
