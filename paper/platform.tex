@@ -43,7 +43,6 @@ Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each 
 When each node boots, it first performs the usual TinyOS initializations, and then jumps into the userland code and starts executing the equivalent of \texttt{main.lua}.
 We preempt this boot sequence so that before the userland code is executed, the kernel reads from a particular location in external memory that establishes which routing protocol and parameters it should use.
 This requires some trickery, described below.
-
 Once in \texttt{main.lua}, the network measurement platform performs its initialization before jumping into the received code capsule to start the experiment.
 
 Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
@@ -91,6 +90,8 @@ If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua cod
 Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
 It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
 
+\todo{talk about how we can replace methods at runtime. Can have a generic method that calls the 'pattern generator' every 'N' seconds, and we can replace those params and functions to do whatever we want. Provide a code sample!}
+
 \subsection{Network Measurement Platform}
 
 Each network experiment comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
@@ -106,7 +107,39 @@ logs the data
 
 Now, we will describe how the platform implements each of these five elements.
 
-\textbf{Initialization}:
+\textbf{Initialization}: The initialization of a code capsule occurs when the kernel first jumps into the userland memory and begins executing.
+The initialization sets up vital resources and methods for the network measurement platform.
+It opens sockets to receive code capsules and commands for execution, and allocates memory and initializes the internal log for telemetry storage.
+Depending on how the network experiment is run, the initialization of a node may also erase its neighbor and routing tables to return the node to a ``just booted'' state, but without the typical loss of dynamically loaded code stored in RAM.
+This is also the time when any code would be loaded from the external flash memory and executed.
+
+\textbf{Start}: Each network experiment can define its own trigger.
+For complex network measurements, this may be accomplished with the aid of a time synchronization technique, but in the small networks we are currently investigating, a simple ``flood-sleep-reset-start'' method suffices.
+This method can actually be disseminated through the network, allowing the start method to be customized for the experiment at hand.
+
+\begin{luacode}
+reset_sock = storm.net.udpsocket(6666, function(msg, ip)
+    if not heard_reset then
+        heard_reset = true
+        if msg == "RAND" then
+            wait = wait + math.random(10)
+        end
+        storm.os.invokeLater(wait*storm.os.SECOND, storm.os.reset)
+        cord.new(function()
+            for i=1,5 do
+                cord.await(storm.os.invokeLater, math.random(3)*storm.os.SECOND)
+                storm.net.sendto(reset_sock, "RAND", "ff02::1", 6666)
+            end
+        end)
+    end
+end)
+\end{luacode}
+
+And then we start it with
+\begin{luacode}
+t1=storm.os.invokeLater(5*storm.os.SECOND, storm.os.reset) 
+storm.net.sendto(reset_sock, "RESET", "ff02::1", 6666)
+\end{luacode}
 
 \subsection{Tricks and Limitations}
 
