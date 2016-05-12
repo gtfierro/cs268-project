@@ -166,16 +166,37 @@ Each network experiment defines a ``stop'' condition, which can be defined by se
 Here, it is often helpful to cancel timers or erase callbacks upon receiving the stop condition so that the network experiment does not continue to send data, adjust routing and mutate data structures while reporting is taking place.
 
 \textbf{Reporting:}
+From our new syscalls, we can retrieve the following information:
+\begin{itemize}
+\item The number of transmitted packets, including the number of software retransmissions
+\item The number of IPv6 neighbor discovery messages sent and received (Solicitations and Advertisements)
+\item The number of packets sent, forward, dropped or fragmented
+\item How many DIS, DIO and DAO messages sent and received by the RPL implementation
+\item The number and identities of routing and neighbor table entries
+\item The current hop count or rank of the node
+\item A sequence number to track the order of samples
+\end{itemize}
 
-talk about saving data to the log. write truncation record. w/ syscalls we get the following data points that we save:
+The network experiment samples these values at regular intervals and saves them as fixed-size records in the Storm's external flash.
+These logs start at a given memory position and advance upward.
+During the reporting phase, the log is replayed from the start position and the node transmits collections of records to a collection point (typically the coordinator node).
+As part of the stop condition for a network experiment, the network measurement platform writes a \texttt{truncate} record to the log to indicate a stopping point for log replay.
 
 \subsection{Tricks and Limitations}
 
-Traditionally, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
-As discussed below, currently the only way to determine which routing protocol should be run is to check at boot for some flag and determine which routing protocol to start.
-While conceivably one could ``stop''\footnote{Using TinyOS's \texttt{StdControl} interface, which provides both \texttt{.start()} and \texttt{.stop()} methods} one routing protocol and switch to another without rebooting, this would also require stopping and cancelling the family of timers and triggers required by the previously running routing protocol.
+\textbf{Multiple Routing Protocols.} Traditionally, due to memory constraints, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
+The ample memory on the Storm platform enables the simultaneous placement of multiple routing protocol implementations on the same mote.
+This becomes possible with some careful overlapping of large data structures (such as routing-protocol specific neighbor tables).
+We choose to overlap data structures and not the routing code itself, because the \texttt{event}s raised by TinyOS components upon receiving packets or interrupts can only be created at compile time.
 
-A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
+The easiest way to switch between routing protocols is at boot time: the Kernel decides which routing protocol to start by reading a particular memory location for a flag value.
+While conceivably one could avoid this reboot by calling ``stop''\footnote{Using TinyOS's \texttt{StdControl} interface, which provides both \texttt{.start()} and \texttt{.stop()} methods} one routing protocol and switch to another, this would also require stopping and cancelling the family of timers and triggers required by the previously running routing protocol.
+
+We use \texttt{\_\_attribute\_\_(section("name"))} to place data structures from different routing protocols at the same locations in memory to save space.
+We do not run into conflicts as long as only a single routing protocol accesses these data structures, otherwise we risk corrupting metadata or reading invalid data.
+Because we cannot protect against methods being called by TinyOS while the system is running, we augment the routing protocol implementations to abort before accessing overlapping data structures if it is not the active protocol.
+
+\textbf{Dynamic Code Limitations.} A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
 This places limits on what code must be placed on the mote before deployment and what code can be dynamically loaded over the network after the mote is deployed.
 Broadly, these constraints force low-level routing protocol code to be programmed into the ROM (not lost on reboot) of each mote, along with the methods handling code reassembly and the basic methods for the network measurement platform described below.
 Custom telemetry methods and experiment execution scripts can be loaded dynamically over the network.
@@ -183,13 +204,8 @@ Custom telemetry methods and experiment execution scripts can be loaded dynamica
 A possible solution for removing this limitation uses the external flash memory on the Storm board to store Lua program text, and then introduce a flag read on boot that performs the above process by loading code from memory rather than receiving over the network.
 The disadvantage here is that the textual representation of Lua code is much larger than the resulting symbols, so this would dramatically reduce the amount of log space available for the networking management platform.
 
-\if 0
-Introduce the software stack we're working with:
--
-\fi
-
-%The storage constraints of the older platforms on which BLIP and TinyRPL were developed led to the use of compile-time configuration options (e.g. %\verb`#define` and \verb`#ifdef`) to remove unused features from the compiled stack when flashing motes.
-%Although the Storm platform does not possess the same storage constraints, the status of the current codebase limits the %ability to use userland applications to configure the TinyOS networking stack.
+%The storage constraints of the older platforms on which BLIP and TinyRPL were developed led to the use of compile-time configuration options (e.g. \verb`#define` and \verb`#ifdef`) to remove unused features from the compiled stack when flashing motes.
+%Although the Storm platform does not possess the same storage constraints, the status of the current codebase limits the ability to use userland applications to configure the TinyOS networking stack.
 %Refactoring the codebase to use run-time rather than compile-time parameters is a not insignificant task, but the WAX methodology could be easily extended to pass configuration options to the TinyOS networking stack to change the choice of objective function or other RPL parameters.
 
 \if 0
