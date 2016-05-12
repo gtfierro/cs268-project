@@ -1,6 +1,6 @@
-\section{3hop -- Zain}
+\section{3hop}
 
-\subsection{Overview -- Zain}
+\subsection{Overview}
 In this section, we'll look at the design goals of the 3hop routing protocol and all the salient features that make it different from existing solutions. 
 One of the main goals of 3hop is to ensure that control traffic decreases as the network topology converges. 
 3hop avoids sending unnecessary control traffic by using application traffic to maintain mesh topology. 
@@ -23,7 +23,7 @@ To support multiple border routers, 3hop uses a centralized coordinator to route
     - less control traffic overhead
 \fi
 
-\subsection{Messages -- Zain}
+\subsection{Messages}
 There are several key elements that influence the overall design of the 3hop routing protocol.
 Each mesh advertises a single prefix and each mote has an address that is structured as such \texttt{<64 bit prefix> : <48 bit MAC> : <16 bit ID>}.
 It's the job of each mote to discover the prefix of the mesh upon joining it, and this is accomplished via Router Solicitation and Router Advertisement messages which will be thoroughly discussed in the next section.
@@ -107,7 +107,7 @@ As this message is sent upwards towards the root, the motes along the path contr
         - optional
 \fi
 
-\subsection{Border Router -- Zain}
+\subsection{Border Router}
 One of the key design goals of 3hop is to be able to support multiple border routers for the same mesh, and this redundancy ensures that motes still have upward/downward routes if a border router were to fail.
 With multiple borders in a mesh, it isn't uncommon to have an airgap where seperated clusters of motes can reach a single border router, and so there must be some way to route packets between border routers.
 There are a couple ways to address this issue -- either let each border router advertise a seperate prefix or have internal infrastructure that handles routing between border routers.
