@@ -10,7 +10,7 @@ Topology formation defines the set of upwards (multipoint-to-point), downwards (
 This must be done with mind to the channel utilization.
 More control traffic sent to form or discover or maintain a topology restricts the lifetime and size of a network as well as bandwidth available for application traffic, which is typically sent at low rates (e.g. one packet per minute).
 
-The original vision of this project was to develop a new routing protocol --- 3hop --- for this common scenario and to augment a discussion of the design and implementation of this new protocol with a comparative study of RPL.
+The original vision of this project was to develop a new routing protocol --- 2hop --- for this common scenario and to augment a discussion of the design and implementation of this new protocol with a comparative study of RPL.
 However, upon embarking on this task, we found that there does not exist adequate instrumentation for studying the low-level behavior of nodes in a real-world sensor mesh.
 To this end, we leverage recent advances in embedded programming environments~\cite{andersen2016system} using dynamic languages to construct a flexible platform for providing rich introspection into the behavior of a networking stack during topology formation.
 We augment this ability with an Active Networks-like approach: executable code capsules disseminated through a network define network experiments: which telemetry to gather, traffic generation, and the start and stop conditions for each experiment.
@@ -19,8 +19,8 @@ We also demonstrate the ability to switch between routing protocol implementatio
 We provide three results in this paper.
 Firstly, we provide an analysis and criticism of the RPL and IPv6 Neighbor Discovery standards discussing how their current definition can be considered overly complex and detrimental for the domain of wireless sensor networks.
 Secondly, we present the implementation of the network measurement platform we used to construct reasonable studies of the routing protocols at hand.
-Lastly, we present the design of an alternative routing protocol --- 3hop --- intended for small-diameter WSNs.
-3hop takes advantage of the wireless broadcast medium to share information between nodes to better detect when control traffic is redundant in order to quiesce appropriately.
+Lastly, we present the design of an alternative routing protocol --- 2hop --- intended for small-diameter WSNs.
+2hop takes advantage of the wireless broadcast medium to share information between nodes to better detect when control traffic is redundant in order to quiesce appropriately.
 Although the development of the routing protocol is not complete --- for instance, we have not yet implemented it for duty-cycled networks --- the initial results demonstrate that this design direction is a promising avenue.
 
 \if 0

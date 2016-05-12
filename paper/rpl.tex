@@ -110,7 +110,7 @@ RPL also defines secure versions of all routing messages and headers.
 It is not clear how much value these provide above the typical approaches of link-layer or application-layer encryption, and in fact, no known open source implementation of RPL actually implements this feature.
 
 RPL's DIS and DIO messages mirror the IPv6 Router Solicitation (RS) and Router Advertisement (RA) messages; in a WSN, any node is a potential router, so RS and RA messages can be used to disseminate mesh parameters.
-Our 3hop routing protocol attaches neighbor table information to these messages to form a routing topology.
+Our 2hop routing protocol attaches neighbor table information to these messages to form a routing topology.
 
 \textbf{Designing for the Medium.} No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
 In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because 802.15.4 wireless is a broadcast medium, it no longer suffices to think of communication between hosts as independent.
