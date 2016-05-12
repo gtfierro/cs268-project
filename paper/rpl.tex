@@ -14,14 +14,45 @@ It is a stated goal of the RFC that ``RPL does not rely on any particular featur
 The focus of this work is on the application of RPL to small-diameter, low-power, lossy, short-range wireless sensor networks, predicating an investigation into how well RPL utilizes the broadcast medium.
 
 At the core of RPL is the notion of a Direction Oriented Directed Acyclic Graph (DODAG) that define routes to and from the root (sink) node.
-The topology formation yields these DODAGs.
+The topology formation yields these DODAGs, and a node can be part of multiple DODAGs.
 RPL supports multiple DODAGs existing in the same WSN, so each DODAG is uniquely identified by the combination of a DODAG ID --- the IPv6 address of the root node --- and a RPL Instance ID.
 A RPL Instance is a collection of DODAGs that all use the same Objective Function.
 Topology formation uses an Objective Function (OF) that computes a numerical Rank assigned to each node in a DODAG.
+
+RPL is designed to work over a hetergeneous domain of networks, so it supports a choice of objective functions and metrics, e.g. expected transmission count, avoiding choosing battery-powered nodes for high-traffic routes, or other metrics.
+The two OFs defined by RPL are Objective Function Zero (OF0)~\cite{of0} and Minimum with Hysteresis Objective Function (MRHOF)~\cite{mrhof}.
+OF0 computes rank on minimum hop-count, and MRHOF computes rank on expected transmission count (ETX)~\cite{etx}.
+
 Rank strictly increases the ``farther'' a node is from the root and decreases the ``closer' it is.
 During topology formation each node builds a list of candidate parents, which are nodes with ranks strictly less than its own.
 The node chooses the ``best'' parent which becomes the node's default route for upwards traffic.
 The maintenance of a set of candidate parents provides routing diversity that enables local rerouting in the presence of link loss or node failure without the need to reform the entire topology~\cite{hui2008ip}.
+RPL does have a global repair mechanism: a DODAG root can choose to increment a DODAG version number at any time, which propagates through the network informing nodes to reset routing state and reform the topology.
+
+RPL also has two ``Modes of Operation'': Storing and Non-Storing mode.
+In Storing mode, nodes maintain a list of routes, so downward routing is done on a hop-by-hop basis.
+In Non-Storing mode, nodes only maintain the default parent as a route, and downward routing is handled by source routing.
+
+\subsection{RPL Messages and Topology Formation}
+
+RPL defines several control messages to build and maintain a routing topology.
+Of these, three are the most commonly implemented: the Destination Information Object (DIO), the Destination Advertisement Object (DAO) and the Destination Information Solicitation (DIS).
+
+DIO messages announce the existence of a DODAG to new nodes and propagate parameters for topology formation.
+This is the only control message required for upward route formation; all other message types are either optimizations or used for other traffic patterns.
+DIO messages contain the RPL instance, Objective Function, DODAG ID, rank, mesh prefix and current DODAG version number.
+Nodes that are part of the topology, i.e. those that have a path to the root and knowledge of the prefix, typically transmit DIO messages over link-local multicast (a broadcast), but can also unicast DIOs to specific nodes.
+Nodes transmit DIOs according to a Trickle timer~\cite{levis2003trickle}.
+The longer the network is in a steady state, the less often the DIO message are sent.
+This reduces the overhead of control traffic, and can mitigate network congestion in dense deployments by quiescing when there is redundant information.
+
+Nonroot nodes transmit DAO messages to inform DODAGs of possible downward destinations.
+While source routing is possible by reversing routes learned from upward traffic, DAO messages enable downward routes to use the objective function to find alternate routes.
+The RPL specification does not provide detail on how often DAO messages should be sent.
+In Storing Mode, nodes send DAO messages to the default parent which can then choose to inform its parent; in Non-Storing mode, nodes send DAO messages to the DODAG root so that it can form source routes for downward traffic.
+
+DIS messages advertise the presence of a new, unattached node.
+The receipt of a DIS message by any node that is part of a DODAG should trigger a unicast DIO message in response, providing the new node with the requisite information for joining the mesh.
 
 \if 0
 In this section, we need to establish what RPL is, a little tiny bit of its history, and then
@@ -80,6 +111,18 @@ In traditional routing, a ``link'' is usually thought of as connecting two hosts
 This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
 Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
 However, the wireless medium also provides an opportunity for sharing information between nodes.
+
+\if 0
+interoperability is a problem!!!
+
+As of the writing of this specification, no implementation is
+expected to support both Storing and Non-Storing modes of operation.
+Most implementations are expected to support either no Downward
+routes, Non-Storing mode only, or Storing mode only.  Other modes of
+operation, such as a hybrid mix of Storing and Non-Storing mode, are
+out of scope for this specification and may be described in other
+companion specifications.
+\fi
 
 \subsection{IPv6 Neighbor Discovery -- Gabe }
 \if 0
