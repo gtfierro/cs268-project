@@ -1,5 +1,13 @@
 \section{Evaluation Platform}
 
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=.9\linewidth]{figs/code_dissemination}
+\caption{Code dissemination over WSN nodes. Each node contains the stack in Figure \ref{fig:nodestack}. Code is disseminated from a coordinator node via unicast to each node. After the experiment is complete, reports are sent back to the coordinator.}
+\label{fig:dissemination}
+
+\end{figure*}
+
 Traditionally, the storage constraints of embedded platforms have forced an opacity onto embedded networking stacks, making it difficult to add monitoring logic without removing functionality from the stack itself.
 The iterative process of altering the networking stack for any sort of parametric study is intractable for more than a few parameters.
 Usually, these parameter spaces are explored with the help of a network simulator such as COOJA~\cite{cooja}, OMNET++~\cite{omnet++} or NS2~\cite{ns2}.
@@ -18,12 +26,8 @@ These compromises and how they affect the our goal of iterative, parameter-drive
 
 The recently-introduced Storm platform~\cite{andersen2016system} used in this study has a 32-bit ARM Cortex M4, with 512 KB ROM and 64 KB RAM, offering much more processing power and storage capabilities.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=.9\linewidth]{figs/code_dissemination}
-\caption{Code dissemination over WSN nodes. Each node contains the stack in Figure \ref{fig:nodestack}. Code is disseminated from a coordinator node via unicast to each node. After the experiment is complete, reports are sent back to the coordinator.}
-\label{fig:dissemination}
-\end{figure*}
+
+\subsection{Software Platform}
 
 \begin{figure}[t]
 \centering
@@ -32,8 +36,6 @@ The recently-introduced Storm platform~\cite{andersen2016system} used in this st
 \label{fig:nodestack}
 \end{figure}
 
-
-\subsection{Software Platform}
 
 In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
 The motes run a port of TinyOS 2.x, using the Berkeley Low-Power IPv6 stack (BLIP) and TinyRPL.

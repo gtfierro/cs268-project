@@ -1,5 +1,34 @@
 \section{Evaluation} \label{section:evaluation}
 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/rpl_single_hop.png}
+\caption{Sum of packet types sent over time over all nodes in a RPL topology of a single broadcast domain.}
+\label{fig:rpl_single_hop}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/3hop_single_hop.png}
+\caption{Sum of packet types sent over time over all nodes in a 3hop topology of a single broadcast domain.}
+\label{fig:3hop_single_hop}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/rpl_multi_hop.png}
+\caption{Sum of packet types sent over time over all nodes in a multi-hop RPL topology}
+\label{fig:rpl_multi_hop}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figs/3hop_multi_hop.png}
+\caption{Sum of packet types sent over time over all nodes in a multi-hop 3hop topology}
+\label{fig:3hop_multi_hop}
+\end{figure}
+
 Lastly, we present an initial evaluation of the 3hop routing protocol in comparison to the RPL routing protocol standard.
 Though this is by no means a comprehensive evaluation, we provide evidence that that the 3hop protocol generates less control traffic and results in a better packet reception ratio for realistic application traffic rates.
 
@@ -32,7 +61,7 @@ For each routing protocol --- RPL and 3hop --- we execute this scenario for two 
 \begin{itemize}
 \item Single-hop: all nodes were placed in a 1 sq foot area next to the border router.
 In this scenario, \emph{there is no need for a routing protocol}, so the vital metric is how well the routing protocol can ``get out of the way'' of the application traffic.
-\item Multi-hop: all nodes were distributed over a \todo{Xm by Xm} lab space with metal desks, cabinets and other obstructions assisting the formation of a multi-hop topology.
+\item Multi-hop: all nodes were distributed over an approx $6\times 14$ meter lab space with metal desks, cabinets and other obstructions assisting the formation of a multi-hop topology.
 In this scenario, the primary metric is the packet delivery ratio (which is assumed to be high in the single-hop case).
 \todo{make the diagram}
 \end{itemize}
@@ -41,41 +70,14 @@ The results of the experiements are summarized in Table~\ref{table:results}.
 
 \subsection{Single-Hop}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figs/rpl_single_hop.png}
-\caption{Sum of packet types sent over time over all nodes in a RPL topology of a single broadcast domain.}
-\label{fig:rpl_single_hop}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figs/3hop_single_hop.png}
-\caption{Sum of packet types sent over time over all nodes in a 3hop topology of a single broadcast domain.}
-\label{fig:3hop_single_hop}
-\end{figure}
-
-
 While both protocols achieve similar packet reception ratios, the RPL topology generates roughly twice as many packets because of the constant overhead of DIO advertisement messages.
 In contrast, the 3hop protocol generates its equivalent of DIO --- the Router Advertisement messages with the Mesh Info option --- on a Trickle timer, thus reducing the portion of traffic related to maintenance of the topology.
+We do not observe any DIS messages in the RPL deployment, perhaps due to the constant stream of DIOs suppressing that message.
+In the 3hop scenario, each node only sends a single Router Solicitation message before joining the mesh.
 
 \subsection{Multi-Hop}
 
-In the multi-hop case,
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figs/rpl_multi_hop.png}
-\caption{Sum of packet types sent over time over all nodes in a multi-hop RPL topology}
-\label{fig:rpl_multi_hop}
-\end{figure}
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figs/3hop_multi_hop.png}
-\caption{Sum of packet types sent over time over all nodes in a multi-hop 3hop topology}
-\label{fig:3hop_multi_hop}
-\end{figure}
+In the multi-hop case, we expect to see more
 
 
 \if 0
