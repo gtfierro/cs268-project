@@ -184,13 +184,19 @@ As part of the stop condition for a network experiment, the network measurement 
 
 \subsection{Tricks and Limitations}
 
-Traditionally, due to memory constraints, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
+\textbf{Multiple Routing Protocols.} Traditionally, due to memory constraints, switching between routing protocol implementations has required reprogramming (``reflashing'') each individual mote, which is a lengthy and manual process that quickly becomes tedious at even modest numbers of motes.
 The ample memory on the Storm platform enables the simultaneous placement of multiple routing protocol implementations on the same mote.
-This becomes possible with some careful overlapping of large data structures (such as routing-protocol specific neighbor tables) using \texttt{\_\_attribute\_\_(section("name"))}.
+This becomes possible with some careful overlapping of large data structures (such as routing-protocol specific neighbor tables).
+We choose to overlap data structures and not the routing code itself, because the \texttt{event}s raised by TinyOS components upon receiving packets or interrupts can only be created at compile time.
+
 The easiest way to switch between routing protocols is at boot time: the Kernel decides which routing protocol to start by reading a particular memory location for a flag value.
 While conceivably one could avoid this reboot by calling ``stop''\footnote{Using TinyOS's \texttt{StdControl} interface, which provides both \texttt{.start()} and \texttt{.stop()} methods} one routing protocol and switch to another, this would also require stopping and cancelling the family of timers and triggers required by the previously running routing protocol.
 
-A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
+We use \texttt{\_\_attribute\_\_(section("name"))} to place data structures from different routing protocols at the same locations in memory to save space.
+We do not run into conflicts as long as only a single routing protocol accesses these data structures, otherwise we risk corrupting metadata or reading invalid data.
+Because we cannot protect against methods being called by TinyOS while the system is running, we augment the routing protocol implementations to abort before accessing overlapping data structures if it is not the active protocol.
+
+\textbf{Dynamic Code Limitations.} A limitation of the current version of dynamic code loading is that the code is saved to RAM, which is lost on reboot.
 This places limits on what code must be placed on the mote before deployment and what code can be dynamically loaded over the network after the mote is deployed.
 Broadly, these constraints force low-level routing protocol code to be programmed into the ROM (not lost on reboot) of each mote, along with the methods handling code reassembly and the basic methods for the network measurement platform described below.
 Custom telemetry methods and experiment execution scripts can be loaded dynamically over the network.
