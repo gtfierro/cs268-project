@@ -147,6 +147,22 @@ companion specifications.
 \fi
 
 \subsection{IPv6 Neighbor Discovery}
+
+In our investigations, we found that the RPL standard is not the only standard that should be revisited for the domain of wireless LLNs (also called LoWPANs).
+IPv6 Neighbor Discovery (IPv6 ND)~\cite{narten2007rfc4861} defines a family of ICMP messages and options to provide the following features: router discovery, prefix and link parameter discovery, stateless address autoconfiguration, address resolution, neighbor unreachability detection (NUD) and duplicate address detection.
+Within the context of WSNs, many of these features become redundant, and some become detrimental.
+These limitations exist despite recent efforts to optimize IPv6 ND for 6LoWPANs~\cite{shelby2012rfc}.
+
+The primary issue with IPv6 ND in 6LoWPANs is Neighbor Unreachability Detection (NUD).
+Firstly, within 6LoWPANs, it is reasonable to avoid active maintenance of connectivity to neighbors, instead using application traffic and overheard messages to establish reachability; the rationale is that if the link was important, it would be used.
+Prior to RFC 7048, to establish if a neighbor was still ``on link'', a node would send three NUD messages one second apart.
+The RFC changed this interval to three seconds, but even this does not appropriately account for transient link failures.
+There is no need to generate extra traffic to maintain this information, especially considering the additional detriment that the node cannot listen for incoming messages while sending or while performing CSMA.
+
+Another use of IPv6 ND is to learn addresses and detect duplicate addresses.
+A common configuration mode of 6LoWPANs uses a form of Stateless Address Autoconfiguration (SLAAC) in which the upper 64 bits of a nodes address is a prefix shared for the mesh and the lower 64 bits comprises a 48-bit EUI-64 address (which is typically identical for a collection of uniform motes) and a 16-bit unique node identifier.
+
+
 \if 0
 - RPL is not the only standard that would need to be revisited for wireless LLNs.
 - IPv6 Neighbor Discovery is intended to provide following features:
