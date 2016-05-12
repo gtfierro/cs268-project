@@ -38,9 +38,7 @@ In this scenario, the primary metric is the packet delivery ratio (which is assu
 
 The results of the experiements are summarized in Table~\ref{table:results}.
 
-\subsection{Single Hop}
-
-Here we present the results of the single-hop 
+\subsection{Single-Hop}
 
 \begin{figure}[t]
 \centering
@@ -55,6 +53,13 @@ Here we present the results of the single-hop
 \caption{Sum of packet types sent over time over all nodes in a 3hop topology of a single broadcast domain.}
 \label{fig:3hop_single_hop}
 \end{figure}
+
+
+Here we present the results of the single-hop experiments.
+While both protocols achieve similar packet reception ratios, the RPL topology generates roughly twice as many packets because of the constant overhead of DIO advertisement messages.
+In contrast, the 3hop protocol generates its equivalent of DIO --- the Router Advertisement messages with the Mesh Info option --- on a Trickle timer, thus reducing the portion of traffic related to maintenance of the topology.
+
+\subsection{Multi-Hop}
 
 \if 0
 Want to evaluate the code dissemination part
