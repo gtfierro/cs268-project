@@ -1,18 +1,36 @@
 \section{Evaluation} \label{section:evaluation}
 
+Lastly, we present an initial evaluation of the 3hop routing protocol in comparison to the RPL routing protocol standard.
+Though this is by no means a comprehensive evaluation, we provide evidence that that the 3hop protocol generates less control traffic and results in a better packet reception ratio for realistic application traffic rates.
+
+\subsection{Methodology}
+
+All experiments here were run in an 11 node configuration, with one of the nodes performing as a dedicated border router and root node.
+The other 10 nodes generate application traffic at the rate of a single (non-fragmented) packet sent to a server outside the network every 30 seconds.
+This packet contains a monotonically increasing counter which is logged at the server and allows us to calculate the packet reception ratio (PRR).
+During the experiment, each node also logs the set of transmitted packets, retransmissions and counts of routing protocol control traffic over time; during the reporting phase each node replay this log and relays the data to the coordinating server.
+
+For each routing protocol --- RPL and 3hop --- we execute this scenario for two topologies:
+\begin{itemize}
+\item Single-hop: all nodes were placed in a 1 sq foot area next to the border router. 
+In this scenario, \emph{there is no need for a routing protocol}, so the vital metric is how well the routing protocol can ``get out of the way'' of the application traffic.
+\item Multi-hop: all nodes were distributed over a Xm by Xm lab space with metal desks, cabinets and other obstructions assisting the formation of a multi-hop topology.
+In this scenario, the primary metric is the packet delivery ratio (which is assumed to be high in the single-hop case).
+\end{itemize}
+
 \subsection{Single Hop}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/rpl_single_hop.png}
-\caption{Packet types sent over time in a RPL topology of a single broadcast domain.}
+\caption{Sum of packet types sent over time over all nodes in a RPL topology of a single broadcast domain.}
 \label{fig:rpl_single_hop}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/3hop_single_hop.png}
-\caption{Packet types sent over time in a 3hop topology of a single broadcast domain.}
+\caption{Sum of packet types sent over time over all nodes in a 3hop topology of a single broadcast domain.}
 \label{fig:3hop_single_hop}
 \end{figure}
 
