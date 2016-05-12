@@ -1,4 +1,27 @@
-\section{RPL}
+\section{The State-of-the-Art: RPL and IPv6 ND}
+
+Here, we present a brief overview of RFC 6550: RPL~\cite{rfc6550}, the Routing Protocol for Low Power and Lossy Networks.
+RPL was developed by the IETF ROLL working group to address growing concerns of interoperability in the emerging domain of wireless sensor networks (WSNs).
+The working group released several informational memos documenting motivation applications for large sensor networks in industrial~\cite{rfc5673} and urban~\cite{rfc5548} as well as for home~\cite{rfc5826} and building~\cite{rfc5867} automation.
+The formulation of RPL was intended to be flexible enough in its configuration to be an effective routing solution for the entire domain of low-power and lossy networks (LLNs).
+
+\subsection{Overview of RPL}
+
+RPL is an IPv6-based distance-vector routing protocol designed for LLNs, a class of network in which both the routers and the interconnects are constrained.
+RPL forms routes for multipoint-to-point (nodes to sink) traffic, and optionally point-to-multipoint (sink to nodes) and point-to-point (node to node) if it is configured to.
+This is in contrast to CTP~\cite{ctp}, which, aside from not support IP routing, only provides support for collection (upwards) routes.
+It is a stated goal of the RFC that ``RPL does not rely on any particular features of a specific link-layer technology''~\cite{rfc6550}; RPL has been implemented for power line communications (PLC) networks and for Bluetooth Low Energy (BLE).
+The focus of this work is on the application of RPL to small-diameter, low-power, lossy, short-range wireless sensor networks, predicating an investigation into how well RPL utilizes the broadcast medium.
+
+At the core of RPL is the notion of a Direction Oriented Directed Acyclic Graph (DODAG) that define routes to and from the root (sink) node.
+The topology formation yields these DODAGs.
+RPL supports multiple DODAGs existing in the same WSN, so each DODAG is uniquely identified by the combination of a DODAG ID --- the IPv6 address of the root node --- and a RPL Instance ID.
+A RPL Instance is a collection of DODAGs that all use the same Objective Function.
+Topology formation uses an Objective Function (OF) that computes a numerical Rank assigned to each node in a DODAG.
+Rank strictly increases the ``farther'' a node is from the root and decreases the ``closer' it is.
+During topology formation each node builds a list of candidate parents, which are nodes with ranks strictly less than its own.
+The node chooses the ``best'' parent which becomes the node's default route for upwards traffic.
+The maintenance of a set of candidate parents provides routing diversity that enables local rerouting in the presence of link loss or node failure without the need to reform the entire topology~\cite{hui2008ip}.
 
 \if 0
 In this section, we need to establish what RPL is, a little tiny bit of its history, and then
@@ -50,6 +73,14 @@ We can then start criticizing it:
   - dio/dis are very similar to ipv6 nd ra/rs messages
 \fi
 
+\subsection{Criticisms}
+
+No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
+In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because wireless link-layers live in a broadcast medium, it no longer suffices to think of communication between hosts as independent.
+This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
+Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
+However, the wireless medium also provides an opportunity for sharing information between nodes.
+
 \subsection{IPv6 Neighbor Discovery -- Gabe }
 \if 0
 - RPL is not the only standard that would need to be revisited for wireless LLNs.
@@ -93,4 +124,3 @@ We can then start criticizing it:
       (defined in 4861 and 6775). HOWEVEr does not allow for letting stuff go stale
     - registering/deregestering w/ routers using AR0 options -- why do we need these
 \fi
-
