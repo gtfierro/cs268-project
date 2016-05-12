@@ -8,7 +8,7 @@ Wireless sensor networks are characterized by low bandwidth, low power, limited 
 These networks must be self-configuring in that nodes must discover and construct their own topology rather than receiving a global view of a network and constructing provably optimal routes.
 Topology formation defines the set of upwards (multipoint-to-point), downwards (point-to-multipoint) and point-to-point routes application traffic can take through the network.
 This must be done with mind to the channel utilization.
-More control traffic sent to form or discover or maintain a topology, restricts the lifetime and size of a network as well as bandwidth available for application traffic, which is typically sent at low rates (e.g. one packet per minute).
+More control traffic sent to form, discover or maintain a topology, restricts the lifetime and size of a network as well as bandwidth available for application traffic, which is typically sent at low rates (e.g. one packet per minute).
 
 The original vision of this project was to develop a new routing protocol --- \texttt{3hop} --- for this common but understated scenario and to augment a discussion of the design and implementation of this new protocol with a comparative study of RPL.
 However, upon embarking on this task, we found that there does not exist adequate instrumentation for studying the low-level behavior of nodes in a real-world sensor mesh.

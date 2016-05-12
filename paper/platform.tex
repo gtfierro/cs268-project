@@ -23,7 +23,7 @@ These \emph{code capsules} define the start and end conditions of an experiment,
 The hardware platform for typically used network evaluations is the TelosB mote (used in \cite{ko2011evaluating} and modeled in COOJA for network simulations).
 The TelosB, introduced in 2005~\cite{polastre2005telos},  employs a 16-bit MSP430 microprocessor with 48 KB ROM and 10 KB RAM.
 This was ample space 10 years ago, but as the size and complexity of IPv6 standards and routing standards increased, the increased pressure on code space informed a set of compromises in the design of the TinyOS networking stack, our focal operating system.
-These compromises and how they affect the our goal of iterative, parameter-driven evaluation are explored in more detail below.
+These compromises and how they affect our goal of iterative, parameter-driven evaluation are explored in more detail below.
 
 The recently-introduced Storm platform~\cite{andersen2016system} used in this study has a 32-bit ARM Cortex M4, with 512 KB ROM and 64 KB RAM, offering much more processing power and storage capabilities.
 
@@ -49,7 +49,7 @@ Once in \texttt{main.lua}, the network measurement platform performs its initial
 
 Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
 This coordinator disseminates code, triggers the beginning of the experiment and retrieves the reports from the nodes after the experiment.
-The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for for measurement application such as for measuring the packet reception ratio.
+The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for a measurement application such as measuring the packet reception ratio.
 
 \subsection{Synergy Kernel and Lua Userland}
 
