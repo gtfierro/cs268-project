@@ -47,7 +47,7 @@ Using ccsniffpiper
 sudo python ccsniffpiper -c 22
 ```
 
-Using tshark;
+Using tshark: (flags at https://www.wireshark.org/docs/dfref/)
 
 ```
 sudo tshark -i /tmp/ccsniffpiper -T "fields" -e list, of, fields
