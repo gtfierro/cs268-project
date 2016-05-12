@@ -1,6 +1,16 @@
 \section{3hop -- Zain}
 
 \subsection{Overview -- Zain}
+In this section, we'll look at the design goals of the 3hop routing protocol and all the salient features that make it different from existing solutions. 
+One of the main goals of 3hop is to ensure that control traffic decreases as the network topology converges. 
+3hop avoids sending unnecessary control traffic by using application traffic to maintain mesh topology. 
+There is no reason to maintain information on links that are never used, and, by exploiting this fact, it's possible to reduce control traffic substantially. 
+Additionally, 3hop utilizes the broadcast medium as often as possible and this also helps to reduce unnecessary traffic in many cases.
+3hop supports duty cyled nodes as this is quite common in low-power wireless sensor networks.
+Finally, 3hop supports multiple border routers for the same mesh, and this redundancy allows nodes to find routes even in the face of failures.
+3hop defines only 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement), and these are used to build upward and downward routes.
+To support multiple border routers, 3hop uses a centralized coordinator to route packets thru the right border router to reach a particular node.
+
 \if 0
 - design goals
     - Control traffic should decrease as network converges
@@ -14,6 +24,17 @@
 \fi
 
 \subsection{Messages -- Zain}
+There are several key elements that influence the overall design of the 3hop routing protocol.
+Each mesh advertises a single prefix and each mote has an address that is structured as such <64 bit prefix> : <48 bit MAC> : <16 bit ID>.
+It's the job of each mote to discover the prefix of the mesh upon joining it, and this is accomplished via Router Solicitation and Router Advertisement messages which will be thoroughly discussed in the next section.
+To build upward routes, motes simply choose a preferred parent that has the lowest hop count to the border router.
+And to build downward routes, motes construct a neighbor table of all the motes they hear via broadcast, and distribute this information to neighbors which build a forwarding table of motes reachable through neighbors.
+To handle point to point communication, 3hop utilizes triangle routing which is simple and sufficient enough, because motes are at most 3 hops from the border router.
+
+
+WIP
+
+
 \if 0
 - Elements
     - Mesh Prefix
