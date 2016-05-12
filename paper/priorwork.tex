@@ -5,22 +5,12 @@ Much of the published work around RPL has focused on how RPL scales as the size
 of the network increased, both in terms of path quality and convergence time to
 a stable state under simulation. 
 
-\cite{ko2011evaluating} compares the performance of TinyRPL with the previous
-de-factor routing protocol for TinyOS, the Collection Tree Protocol
-(CTP)~\cite{ctp}. The study uses the COOJA~\cite{cooja} simulation engine to
-perform parametric studies, but motivates many of its conclusions from a real
-deployment of 50 TelosB nodes. The real deployment is used to evaluate packet
-reception ratios of application traffic, and the study of RPL control traffic
-is left to the network simulation. It concludes that RPL matches the
-performance of the well-engineered CTP routing protocol while providing
-additional routing features (such as downward routes and multiple parents).
-
 The studies contained in \cite{tripathi2010performance} draw a topology and a
 link failure model from a real-world deployment and apply these measurements to
 an OMNET++~\cite{omnet++} simulation that examines path quality, the overhead
 of control packets and the size of routing tables. The study concluded in part
-that the inclusion of a correctly configured Trickle timer has a significant influence
-on the overhead of RPL control traffic.
+that the inclusion of a correctly configured Trickle timer \emph{has a significant influence
+on the overhead of RPL control traffic.}
 
 Some work \cite{clausen2011critical} has also been done on evaluating the
 specification of RPL, using the NS2~\cite{ns2} simulator to complement
@@ -51,6 +41,3 @@ forwarding of their packets, we do place active node containers in the network
 and performing coordination and traffic generation through an executed capsule.
 This approach is similar to Scriptroute~\cite{spring2003scriptroute}, which
 enabled Internet users to conduct distributed network measurements
-
-\subsection{Routing Protocols}
-

@@ -11,7 +11,7 @@ RPL is an IPv6-based distance-vector routing protocol designed for LLNs, a class
 RPL forms routes for multipoint-to-point (nodes to sink) traffic, and optionally point-to-multipoint (sink to nodes) and point-to-point (node to node) if it is configured to.
 This is in contrast to CTP~\cite{ctp}, which, aside from not support IP routing, only provides support for collection (upwards) routes.
 It is a stated goal of the RFC that ``RPL does not rely on any particular features of a specific link-layer technology''~\cite{rfc6550}; RPL has been implemented for power line communications (PLC) networks and for Bluetooth Low Energy (BLE).
-The focus of this work is on the application of RPL to small-diameter, low-power, lossy, short-range wireless sensor networks, predicating an investigation into how well RPL utilizes the broadcast medium.
+The focus of this work is on the application of RPL to small-diameter, low-power, lossy, short-range wireless sensor networks, predicating an investigation into how well RPL utilizes the wireless medium.
 
 At the core of RPL is the notion of a Direction Oriented Directed Acyclic Graph (DODAG) that define routes to and from the root (sink) node.
 The topology formation yields these DODAGs, and a node can be part of multiple DODAGs.
@@ -102,15 +102,18 @@ Other modes of operation, such as a hybrid mix of Storing and Non-Storing mode, 
 
 The bulk of this complexity comes from an overabundance of features, some redundant with link-layer features, some unnecessary for the majority of deployments.
 
-\textbf{Unnecessary Features} A major limitation of RPL is that DODAG-based routing can only support a single border router, which is a single point of failure for the mesh.
+\textbf{Unnecessary Features.} A major limitation of RPL is that DODAG-based routing can only support a single border router, which is a single point of failure for the mesh.
 The vague role of RPL instances and multiple objective functions make it difficult to reason about how to construct ``backup'' roots for data retrieval.
 The RPL standard does not guidance on or use cases for multiple RPL instances in a single WSN.
 
 RPL also defines secure versions of all routing messages and headers.
 It is not clear how much value these provide above the typical approaches of link-layer or application-layer encryption, and in fact, no known open source implementation of RPL actually implements this feature.
 
+RPL's DIS and DIO messages mirror the IPv6 Router Solicitation (RS) and Router Advertisement (RA) messages; in a WSN, any node is a potential router, so RS and RA messages can be used to disseminate mesh parameters.
+Our 3hop routing protocol attaches neighbor table information to these messages to form a routing topology.
+
 \textbf{Designing for the Medium.} No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
-In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because wireless link-layers live in a broadcast medium, it no longer suffices to think of communication between hosts as independent.
+In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because 802.15.4 wireless is a broadcast medium, it no longer suffices to think of communication between hosts as independent.
 This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
 Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
 However, the wireless medium also provides an opportunity for sharing information between nodes, which we explore in the construction of our own routing protocol.

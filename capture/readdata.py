@@ -44,8 +44,8 @@ while True:
         for stats in unpacker:
             if stats is None: break
             print stats
-            if stats.get('seq',None) == 0xffff:
-                sys.exit(0)
+            #if stats.get('seq',None) == 0xffff:
+            #    sys.exit(0)
             lastseq = stats.get('seq')
             RECORDS.append([int(time.time()), node, stats.get('seq',0), stats.get('pkt',0), 
                                               stats.get('tx',0), stats.get('mi_sent',0), 

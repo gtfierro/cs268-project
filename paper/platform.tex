@@ -30,30 +30,7 @@ The recently-introduced Storm platform~\cite{andersen2016system} used in this st
 
 \subsection{Software Platform}
 
-
-In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
-The motes run a port of TinyOS 2.x, using the Berkeley Low-Power IPv6 stack (BLIP) and TinyRPL.
-Over this, the nodes run the Synergy kernel with a Lua userland~\cite{andersen2016system}, which introduces a dynamic, scripting environment with visibility into the inner workings of the operating system (and thus network stack).
-We extend this base functionality with:
-\begin{itemize}
-\item a set of new syscalls with the ability to edit routing and neighbor tables, and view control traffic and other network telemetry,
-\item a network measurement platform Lua library for conducting networking studies
-\item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
-\end{itemize}
-
-Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each node in the network to be measured.
-When each node boots, it first performs the usual TinyOS initializations, and then jumps into the userland code and starts executing the equivalent of \texttt{main.lua}.
-We preempt this boot sequence so that before the userland code is executed, the kernel reads from a particular location in external memory that establishes which routing protocol and parameters it should use.
-This requires some trickery, described below.
-Once in \texttt{main.lua}, the network measurement platform performs its initialization before jumping into the received code capsule to start the experiment.
-
-Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
-This coordinator disseminates code, triggers the beginning of the experiment and retrieves the reports from the nodes after the experiment.
-The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for a measurement application such as measuring the packet reception ratio.
-
-\subsection{Synergy Kernel and Lua Userland}
-
-\begin{table*}[ht]
+\begin{table*}[ht!]
 \centering
 \begin{tabular}{| l | l |}
 \hline
@@ -70,11 +47,33 @@ The coordinator does not participate in the experiment, but it can serve as a ``
 \verb`storm.os.gettable()` & Returns all valid entries in the routing table \\ \hline
 \verb`storm.os.flushroutes()` & Deletes all entries from the routing table \\ \hline
 \verb`storm.os.flushneighbors()` & Deletes all entries from neighbor table \\ \hline
-
 \end{tabular}
 \caption{List of new syscalls implemented for stack monitoring. Each of the \texttt{stats()} methods has a corresponding \texttt{clear()} to erase the cumulative counts.}
 \label{table:syscalls}
 \end{table*}
+
+In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
+The motes run a port of TinyOS 2.x, using the Berkeley Low-Power IPv6 stack (BLIP) and TinyRPL.
+Over this, the nodes run the Synergy kernel with a Lua userland~\cite{andersen2016system}, which introduces a dynamic, scripting environment with visibility into the inner workings of the operating system (and thus network stack).
+We extend this base functionality with:
+\begin{itemize}
+\item a set of new syscalls with the ability to edit routing and neighbor tables, and view control traffic and other network telemetry,
+\item a Lua network measurement platform for conducting networking studies
+\item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
+\end{itemize}
+
+Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each node in the network to be measured.
+When each node boots, it first performs the usual TinyOS initializations, and then jumps into the userland code and starts executing the equivalent of \texttt{main.lua}.
+We preempt this boot sequence so that before the userland code is executed, the kernel reads from a particular location in external memory that establishes which routing protocol and parameters it should use.
+This requires some trickery, described below.
+Once in \texttt{main.lua}, the network measurement platform performs its initialization before jumping into the received code capsule to start the experiment.
+
+Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
+This coordinator disseminates code, triggers the beginning of the experiment and retrieves the reports from the nodes after the experiment.
+The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for a measurement application such as measuring the packet reception ratio.
+
+
+\subsection{Synergy Kernel and Lua Userland}
 
 A detailed study of a layer 3 routing protocol, such as RPL, needs to be able to pull information from layer 2 and layer 1 components in the networking stack.
 The Synergy kernel exposes TinyOS functionality to userland applications through the use of syscalls, giving applications the ability to run timers, send or receive network traffic, and write to GPIO pins or other peripherals.
@@ -90,7 +89,7 @@ We deliver code over TCP, using a recent adaptation of the BSD TCP stack to Tiny
 Each mote listens on a known port for incoming code segments, and hands them to the built-in Lua-C API function \texttt{LuaL\_loadbuffer}, which attempts to evaluate the buffer as a chunk of Lua code.
 If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua code --- then it is executed, the results are placed on the Lua stack and interpreted, and the buffer is emptied.
 Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
-It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
+It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or parameters for preloaded applications.
 
 %\todo{talk about how we can replace methods at runtime. Can have a generic method that calls the 'pattern generator' every 'N' seconds, and we can replace those params and functions to do whatever we want. Provide a code sample!}
 
@@ -132,6 +131,7 @@ rsock = storm.net.udpsocket(6666, function()
  -- truncate flooding
  if not heard_reset then
   heard_reset = true
+  -- schedule software reset
   storm.os.invokeLater(wait*SECOND, storm.os.reset)
   cord.new(function()
    for i=1,5 do
@@ -155,9 +155,7 @@ We could also of course send a packet to port 6666 on a node, which would then s
 \textbf{Traffic Generation:}  This block of code is the logic that runs during the experiment in question and handles both traffic generation and network monitoring.
 The primary concerns of the generation component are determing how often the node sends and to whom.
 The two most common patterns of this are a periodic send or a request-response or ``echo'' generator.
-The event-driven nature of the userland networking interface facilitates these patterns of traffic generation.
-For example, the logic to respond to a request can be invoked in the callback for a received packet on a given port.
-Additionally, dynamic code loading allows capsules to easily define point-to-multipoint, multipoint-to-point or even point-to-point traffic.
+Dynamic code loading allows capsules to easily define point-to-multipoint, multipoint-to-point or even point-to-point traffic.
 
 Monitoring and statistical code for the eventual report is interspersed in the capsule logic for generating traffic and notifications of received traffic.
 Beyond the network statistics provided by the kernel interface (described in Table~\ref{table:syscalls}), it is up to the code capsule to determine the logic for what statistics are kept.
