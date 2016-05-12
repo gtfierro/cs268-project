@@ -25,7 +25,7 @@ To support multiple border routers, 3hop uses a centralized coordinator to route
 
 \subsection{Messages -- Zain}
 There are several key elements that influence the overall design of the 3hop routing protocol.
-Each mesh advertises a single prefix and each mote has an address that is structured as such <64 bit prefix> : <48 bit MAC> : <16 bit ID>.
+Each mesh advertises a single prefix and each mote has an address that is structured as such \texttt{<64 bit prefix> : <48 bit MAC> : <16 bit ID>}.
 It's the job of each mote to discover the prefix of the mesh upon joining it, and this is accomplished via Router Solicitation and Router Advertisement messages which will be thoroughly discussed in the next section.
 To build upward routes, motes simply choose a preferred parent that has the lowest hop count to the border router.
 If this preferred parent goes offline or no longer exists, another preferred parent is chosen.
@@ -55,7 +55,7 @@ The reason for this is to give better parents the opportunity to broadcast their
 If a waiting neighbor hears a Mesh Info message that included the new mote in its neighbor set, then it knows to cancel its Mesh Info message.
 This is one way in which the broadcast medium helps to reduce extraneous control traffic.
 
-fill
+fill?
 
 \if 0
 - Elements
@@ -113,7 +113,7 @@ There are multiple approaches to solving this problem -- the two main ones that 
 While both solutions have their pros and cons, 3hop takes the centralized approach as it is fairly simple in design and solves the problem quite well.
 The border routers simply listen to Mesh Info/Announcement messages from the mesh, and use this information to establish downward routes.
 Additionally, these border routers relay information on which motes they can reach up to the coordinator which keeps of all this state and routes incoming packets through the best border routers.
-
+When a packet comes in, the coordinator does a lookup in a routing table to find the border router that can reach the destination of that packet and fowards the packet to that border router which handles the rest of the routing.
 
 \if
 - why multiple borders same mesh?
