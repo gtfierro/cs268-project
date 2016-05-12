@@ -28,11 +28,33 @@ There are several key elements that influence the overall design of the 3hop rou
 Each mesh advertises a single prefix and each mote has an address that is structured as such <64 bit prefix> : <48 bit MAC> : <16 bit ID>.
 It's the job of each mote to discover the prefix of the mesh upon joining it, and this is accomplished via Router Solicitation and Router Advertisement messages which will be thoroughly discussed in the next section.
 To build upward routes, motes simply choose a preferred parent that has the lowest hop count to the border router.
+If this preferred parent goes offline or no longer exists, another preferred parent is chosen.
 And to build downward routes, motes construct a neighbor table of all the motes they hear via broadcast, and distribute this information to neighbors which build a forwarding table of motes reachable through neighbors.
-To handle point to point communication, 3hop utilizes triangle routing which is simple and sufficient enough, because motes are at most 3 hops from the border router.
+In the case of point to point communication, 3hop utilizes triangle routing which is simple and sufficient enough, because motes are at most 3 hops from the border router.
+As it will become quite clear, 3hop heavily relies on trickle timers as this reduces control traffic when it's not necessary, but also quickly responds to changes in the mesh topology.
+To actualize these key elements, the 3hop routing protocol defines 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement).
 
+Motes that are a part of a mesh broadcast a Router Advertisement (Mesh Info) message on a trickle timer. 
+This Mesh Info message includes:
+\begin{itemize}
+\item mesh prefix
+\item power profile
+\item hop count (to nearest border router)
+\item neighbor set
+\item mesh schedule info
+\end{itemize}
+The main purpose of the Mesh Info message is not only to keep motes up-to-date with any changes to the mesh topology, but also to give new motes an oppurtunity to join the mesh.
+When a mote goes online, it needs a way to announce it's existence so that it may bootstrap itself to the mesh. 
+This is accomplished by broadcasting a Router Solicitation message which includes: 
+\begin{itemize}
+\item power profile
+\item phase info
+\end{itemize}
+Neighbors that hear this message will reset their Mesh Info trickle timers and wait some amount of time proportional to their hop count. 
+The reason for this is to give better parents the oppurtunity to broadcast their Mesh Info message before worse options get a chance to do so.
+If a waiting neighbor hears a Mesh Info message that included the new mote in it's neighbor set, then it knows to cancel it's Mesh Info message.
+This is one way in which the broadcast medium helps to reduce extraneous control traffic. 
 
-WIP
 
 
 \if 0
