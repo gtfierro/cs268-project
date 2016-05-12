@@ -56,6 +56,9 @@ All experiments here were run in an 11 node configuration, with one of the nodes
 The other 10 nodes generate application traffic at the rate of a single (non-fragmented) packet sent to a server outside the network every 30 seconds.
 This packet contains a monotonically increasing counter which is logged at the server and allows us to calculate the packet reception ratio (PRR).
 During the experiment, each node also logs the set of transmitted packets, retransmissions and counts of routing protocol control traffic over time; during the reporting phase each node replay this log and relays the data to the coordinating server.
+The network measurement platform takes one sample every 5 seconds.
+These logs generate the graphs in Figures~\ref{fig:rpl_single_hop},\ref{fig:3hop_single_hop}\ref{fig:rpl_multi_hop} and \ref{fig:3hop_multi_hop}.
+To accentuate the control traffic patterns, these graphs are smoothed with by taking the sum of packets per traffic type in 10-second buckets. Raw data is available at \url{https://github.com/gtfierro/cs268-project/tree/master/capture}.
 
 For each routing protocol --- RPL and 3hop --- we execute this scenario for two topologies:
 \begin{itemize}
@@ -67,6 +70,8 @@ In this scenario, the primary metric is the packet delivery ratio (which is assu
 \end{itemize}
 
 The results of the experiements are summarized in Table~\ref{table:results}.
+For the RPL experiments, we configured the nodes to use the OF0 objective function to make it more comparable to the hop-count metric of 3hop.
+All RPL nodes additionally use the ``storing'' mode of operation, meaning they maintain downwards as well as upwards.
 
 \subsection{Single-Hop}
 
@@ -77,14 +82,9 @@ In the 3hop scenario, each node only sends a single Router Solicitation message 
 
 \subsection{Multi-Hop}
 
-In the multi-hop case, we expect to see more
+In the multi-hop case, RPL behaves according to our expectations: because there are multiple hops in the network, the packet transmission counts are higher.
+We also see DAO traffic being sent by the motes that are more than one hop away from the root node.
+Surprisingly, the amount of DIO traffic, while still constant, is higher than in the single hop scenario, suggesting that the TinyOS RPL implementation does not have a mechanism for reducing control traffic.
+For both the DAO and DIO traffic, the RPL specification is vague enough that although we can clearly see the incurred overhead and its detrimental effects on PRR (a dismal 50\% average), this implementation is still ``standards compliant''.
 
-
-\if 0
-Want to evaluate the code dissemination part
-
-Describe the methodology:
-- what are the aspects of routing protocol we find important, i.e. what are our goals
-- given these goals, what do we need to evaluate to demonstrate whether or not we achieved them
-- probably want to write the RPL/ipv6 nd discussion first
-\fi
+Conversely, the 3hop protocol performs similar to the single-hop scenario: control traffic quiesces gracefully as the nodes share state, and PRR is high and consistent across the nodes.
