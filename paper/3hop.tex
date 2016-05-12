@@ -32,7 +32,7 @@ If this preferred parent goes offline or no longer exists, another preferred par
 And to build downward routes, motes construct a neighbor table of all the motes they hear via broadcast, and distribute this information to neighbors which build a forwarding table of motes reachable through neighbors.
 In the case of point to point communication, 3hop utilizes triangle routing which is simple and sufficient enough, because motes are at most 3 hops from the border router.
 As it will become quite clear, 3hop heavily relies on trickle timers as this reduces control traffic when it's not necessary, but also quickly responds to changes in the mesh topology.
-To actualize these key elements, the 3hop routing protocol defines 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement).
+To actualize these key elements, the 3hop routing protocol builds off the IPv6 Neighbor Discovery standard, and uses the option field to define 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement).
 
 Motes that are a part of a mesh broadcast a Router Advertisement (Mesh Info) message on a trickle timer. 
 This Mesh Info message includes:
