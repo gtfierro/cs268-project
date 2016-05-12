@@ -57,3 +57,19 @@
 \fi
 
 \subsection{Border Router -- Zain}
+\if
+- why multiple borders same mesh?
+    - redundancy if failures -- need multiple paths upward/downward
+    - a single prefix means global source doesn't need to know which BR can reach which node
+    - use application traffic, routing info to maintain state
+- two main approaches
+    - decentralized
+        - BR reach consensus on which route is best
+    - centralized
+        - defer decision making/state to logically centralized coordinator
+- updates
+    - listen to Mesh Info/Announcement messages from mesh
+\fi
+
+
+
