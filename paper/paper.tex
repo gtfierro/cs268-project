@@ -1,6 +1,7 @@
 \documentclass[conference]{IEEEtran}
 \usepackage{enumitem}
 \usepackage{graphicx}
+\usepackage{csquotes}
 \usepackage{url}
 \usepackage{xcolor}
 \usepackage{listings}
@@ -79,101 +80,7 @@ TODO
       more powerful, powered. Can have large bandwidth backbone
 \fi
 
-\section{RPL -- Gabe }
-
-\if 0
-In this section, we need to establish what RPL is, a little tiny bit of its history, and then
-go into its design, how it addresses the requirements above, and how well we can predict
-these might fit into our chosen scenario.
-
-What is RPL:
-  - distance-vector routing protocol designed for low-power and lossy networks, a class of
-    network in which both the routers and the interconnects are constrained
-  - aims to provide all three traffic patterns: up, down. point-to-point:
-    - contrast to CTP which only does collection (up)
-  - "RPL does not rely on any particular features of a specific link-layer technology" -RFC6550
-  - means that it cannot make assumptions about those features, meaning it can lead to
-    redundant design decisions
-  - here we concentrate on the application of RPL to low-power, lossy, short-range wireless
-    sensor networks
-  - brings with it following opportunities and constraints
-    - harness the broadcast medium
-    - be aware of bandwidth usage, talking too much
-    - specifically, "repair" mechanisms can cause a lot of traffic and end up bringing down
-      other nodes because now they are overloaded
-
-How do it work though:
-- topology:
-  - RPL instance = set of 1+ DODAGs sharing RPLinstance ID:
-    - each operate independently, implements different objective function
-  - DODAGs identify roots. uniquely identified by combination of RPL instance ID
-  - rank: defines nodes individual position relative to other nodes w/ respect to the
-    DODAG root. Increases farther away from root
-  - DODAG root: usually the border router, configures parameters, determines when global
-    repair happens
-- control mesages
-- how topology formation works
-
-We can then start criticizing it:
-- complexity:
-  - multiple DODAGs, RPL instances, OFs
-  - secure version of all headers -- not clear this could be achieved using app level
-    or L2 security. To knowledge no one has implemented this
-- underspecification:
-  - how often to send DAO messages? relayed to the parent, constant overhead of messages
-  - interoperability is a problem (contiki/tinyrpl happy together). Two implementations
-    must have the same feature set, which is different than the minimal set of features
-    required to have the system working:
-    - storing mode vs non storing mode
-- unnecessary features:
-  - RPL instances -- the standard does not even talk about multiple
-  - multiple objective functions: only 2 were ever implemented
-  - dio/dis are very similar to ipv6 nd ra/rs messages
-\fi
-
-\subsection{IPv6 Neighbor Discovery -- Gabe }
-\if 0
-- RPL is not the only standard that would need to be revisited for wireless LLNs.
-- IPv6 Neighbor Discovery is intended to provide following features:
-    - router discovery: find routers on attached link
-    - parameter discovery:
-        - prefix discovery, link MTU, hop limit, etc
-    - stateless address autoconfiguration
-    - address resolution
-    - neighbor unreachability detection (NUD)
-    - duplicate address detection
-- these are more features than are needed for WSNs because of restrictions:
-    - NUD: no need to maintain connectivity to neighbors
-        - use the application traffic to determine if link is still good
-        - if you don't use the link, don't waste time and energy keeping it up:
-            - places pressure on the channel because you can only broadcast!
-        - IP is best-effort: use this leeway!
-    - duplicate address detection:
-        - a common way of configuring motes is SLAAC
-        - one way of doing this is 64-bit prefix + 64-bit EUI-64 address
-        - 48bit MAC, last 16 bits are a unique node identifier
-        - upshot: can compress the address of a mote into 2 bytes (2^16-1 addresses)
-        - guaranteed unique address: no need to check for dups
-- constants: too chatty?
-    - rfc6775 attempts to adapt for 6LowPANs:
-    - "Minimize signaling by avoiding the use of multicast
-      flooding and reducing the use of link-scope multicast messages"
-    - original constants: cite them
-    - rfc6775 new constants:
-        - max RAs: 3
-        - min delay btwn RA: 10s
-        - max RA delay time 2 sec
-        - RS interval: 10s
-        - max RS : 3
-        - max Rs interval - 60s
-- NUD: too chatty
-    - send unicast NS messages for registering IPv6 addresses
-    - send messages to verify that default routers are still reachable
-    - host needs to maintain "NCE" in the router
-    - NUD defines probes, but can be suppressed using reachability confirmation
-      (defined in 4861 and 6775). HOWEVEr does not allow for letting stuff go stale
-    - registering/deregestering w/ routers using AR0 options -- why do we need these
-\fi
+\input{rpl}
 
 \input{priorwork}
 
@@ -181,7 +88,9 @@ We can then start criticizing it:
 
 \input{platform}
 
-\section{Evaluation} \label{section:evaluation}
+\input{evaluation}
+
+\section{Conclusion}
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,references}

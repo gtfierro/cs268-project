@@ -18,11 +18,17 @@ These compromises and how they affect the our goal of iterative, parameter-drive
 
 The recently-introduced Storm platform~\cite{andersen2016system} used in this study has a 32-bit ARM Cortex M4, with 512 KB ROM and 64 KB RAM, offering much more processing power and storage capabilities.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=.9\linewidth]{figs/code_dissemination}
+\caption{Code dissemination over WSN nodes. Each node contains the stack in Figure \ref{fig:nodestack}. Code is disseminated from a coordinator node via unicast to each node. After the experiment is complete, reports are sent back to the coordinator.}
+\label{fig:dissemination}
+\end{figure*}
+
 \begin{figure}[t]
 \centering
 \includegraphics[width=.9\linewidth]{figs/NodeStack}
-\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio
-stack that would otherwise be difficult to incorporate.}
+\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio stack that would otherwise be difficult to incorporate.}
 \label{fig:nodestack}
 \end{figure}
 

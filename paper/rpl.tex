@@ -1,0 +1,207 @@
+\section{The State-of-the-Art: RPL and IPv6 ND}
+
+Here, we present a brief overview of RFC 6550: RPL~\cite{rfc6550}, the Routing Protocol for Low Power and Lossy Networks.
+RPL was developed by the IETF ROLL working group to address growing concerns of interoperability in the emerging domain of wireless sensor networks (WSNs).
+The working group released several informational memos documenting motivation applications for large sensor networks in industrial~\cite{rfc5673} and urban~\cite{rfc5548} as well as for home~\cite{rfc5826} and building~\cite{rfc5867} automation.
+The formulation of RPL was intended to be flexible enough in its configuration to be an effective routing solution for the entire domain of low-power and lossy networks (LLNs).
+
+\subsection{Overview of RPL}
+
+RPL is an IPv6-based distance-vector routing protocol designed for LLNs, a class of network in which both the routers and the interconnects are constrained.
+RPL forms routes for multipoint-to-point (nodes to sink) traffic, and optionally point-to-multipoint (sink to nodes) and point-to-point (node to node) if it is configured to.
+This is in contrast to CTP~\cite{ctp}, which, aside from not support IP routing, only provides support for collection (upwards) routes.
+It is a stated goal of the RFC that ``RPL does not rely on any particular features of a specific link-layer technology''~\cite{rfc6550}; RPL has been implemented for power line communications (PLC) networks and for Bluetooth Low Energy (BLE).
+The focus of this work is on the application of RPL to small-diameter, low-power, lossy, short-range wireless sensor networks, predicating an investigation into how well RPL utilizes the broadcast medium.
+
+At the core of RPL is the notion of a Direction Oriented Directed Acyclic Graph (DODAG) that define routes to and from the root (sink) node.
+The topology formation yields these DODAGs, and a node can be part of multiple DODAGs.
+RPL supports multiple DODAGs existing in the same WSN, so each DODAG is uniquely identified by the combination of a DODAG ID --- the IPv6 address of the root node --- and a RPL Instance ID.
+A RPL Instance is a collection of DODAGs that all use the same Objective Function.
+Topology formation uses an Objective Function (OF) that computes a numerical Rank assigned to each node in a DODAG.
+
+RPL is designed to work over a hetergeneous domain of networks, so it supports a choice of objective functions and metrics, e.g. expected transmission count, avoiding choosing battery-powered nodes for high-traffic routes, or other metrics.
+The two OFs defined by RPL are Objective Function Zero (OF0)~\cite{of0} and Minimum with Hysteresis Objective Function (MRHOF)~\cite{mrhof}.
+OF0 computes rank on minimum hop-count, and MRHOF computes rank on expected transmission count (ETX)~\cite{etx}.
+
+Rank strictly increases the ``farther'' a node is from the root and decreases the ``closer' it is.
+During topology formation each node builds a list of candidate parents, which are nodes with ranks strictly less than its own.
+The node chooses the ``best'' parent which becomes the node's default route for upwards traffic.
+The maintenance of a set of candidate parents provides routing diversity that enables local rerouting in the presence of link loss or node failure without the need to reform the entire topology~\cite{hui2008ip}.
+RPL does have a global repair mechanism: a DODAG root can choose to increment a DODAG version number at any time, which propagates through the network informing nodes to reset routing state and reform the topology.
+
+RPL also has two ``Modes of Operation'': Storing and Non-Storing mode.
+In Storing mode, nodes maintain a list of routes, so downward routing is done on a hop-by-hop basis.
+In Non-Storing mode, nodes only maintain the default parent as a route, and downward routing is handled by source routing.
+
+\subsection{RPL Messages and Topology Formation}
+
+RPL defines several control messages to build and maintain a routing topology.
+Of these, three are the most commonly implemented: the Destination Information Object (DIO), the Destination Advertisement Object (DAO) and the Destination Information Solicitation (DIS).
+
+DIO messages announce the existence of a DODAG to new nodes and propagate parameters for topology formation.
+This is the only control message required for upward route formation; all other message types are either optimizations or used for other traffic patterns.
+DIO messages contain the RPL instance, Objective Function, DODAG ID, rank, mesh prefix and current DODAG version number.
+Nodes that are part of the topology, i.e. those that have a path to the root and knowledge of the prefix, typically transmit DIO messages over link-local multicast (a broadcast), but can also unicast DIOs to specific nodes.
+Nodes transmit DIOs according to a Trickle timer~\cite{levis2003trickle}.
+The longer the network is in a steady state, the less often the DIO message are sent.
+This reduces the overhead of control traffic, and can mitigate network congestion in dense deployments by quiescing when there is redundant information.
+
+Nonroot nodes transmit DAO messages to inform DODAGs of possible downward destinations.
+While source routing is possible by reversing routes learned from upward traffic, DAO messages enable downward routes to use the objective function to find alternate routes.
+The RPL specification does not provide detail on how often DAO messages should be sent.
+In Storing Mode, nodes send DAO messages to the default parent which can then choose to inform its parent; in Non-Storing mode, nodes send DAO messages to the DODAG root so that it can form source routes for downward traffic.
+
+DIS messages advertise the presence of a new, unattached node.
+The receipt of a DIS message by any node that is part of a DODAG should trigger a unicast DIO message in response, providing the new node with the requisite information for joining the mesh.
+
+\if 0
+In this section, we need to establish what RPL is, a little tiny bit of its history, and then
+go into its design, how it addresses the requirements above, and how well we can predict
+these might fit into our chosen scenario.
+
+What is RPL:
+  - distance-vector routing protocol designed for low-power and lossy networks, a class of
+    network in which both the routers and the interconnects are constrained
+  - aims to provide all three traffic patterns: up, down. point-to-point:
+    - contrast to CTP which only does collection (up)
+  - "RPL does not rely on any particular features of a specific link-layer technology" -RFC6550
+  - means that it cannot make assumptions about those features, meaning it can lead to
+    redundant design decisions
+  - here we concentrate on the application of RPL to low-power, lossy, short-range wireless
+    sensor networks
+  - brings with it following opportunities and constraints
+    - harness the broadcast medium
+    - be aware of bandwidth usage, talking too much
+    - specifically, "repair" mechanisms can cause a lot of traffic and end up bringing down
+      other nodes because now they are overloaded
+
+How do it work though:
+- topology:
+  - RPL instance = set of 1+ DODAGs sharing RPLinstance ID:
+    - each operate independently, implements different objective function
+  - DODAGs identify roots. uniquely identified by combination of RPL instance ID
+  - rank: defines nodes individual position relative to other nodes w/ respect to the
+    DODAG root. Increases farther away from root
+  - DODAG root: usually the border router, configures parameters, determines when global
+    repair happens
+- control mesages
+- how topology formation works
+\fi
+
+\subsection{Criticisms}
+
+RPL is not an effective standard.
+Its complexity and underspecification make it difficult to have two fully interoperable implementations because there are multiple subsets of features for basic operation that are mutually exclusive from an interoperability standpoint.
+This is explicitly mentioned in the RFC~\cite{rfc6550}:
+
+\begin{displayquote}
+As of the writing of this specification, no implementation is expected to support both Storing and Non-Storing modes of operation.
+Most implementations are expected to support either no Downward routes, Non-Storing mode only, or Storing mode only.
+Other modes of operation, such as a hybrid mix of Storing and Non-Storing mode, are out of scope for this specification and may be described in other companion specifications.
+\end{displayquote}
+
+The bulk of this complexity comes from an overabundance of features, some redundant with link-layer features, some unnecessary for the majority of deployments.
+
+\textbf{Unnecessary Features} A major limitation of RPL is that DODAG-based routing can only support a single border router, which is a single point of failure for the mesh.
+The vague role of RPL instances and multiple objective functions make it difficult to reason about how to construct ``backup'' roots for data retrieval.
+The RPL standard does not guidance on or use cases for multiple RPL instances in a single WSN.
+
+RPL also defines secure versions of all routing messages and headers.
+It is not clear how much value these provide above the typical approaches of link-layer or application-layer encryption, and in fact, no known open source implementation of RPL actually implements this feature.
+
+\textbf{Designing for the Medium.} No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
+In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because wireless link-layers live in a broadcast medium, it no longer suffices to think of communication between hosts as independent.
+This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
+Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
+However, the wireless medium also provides an opportunity for sharing information between nodes, which we explore in the construction of our own routing protocol.
+
+\if 0
+We can then start criticizing it:
+- complexity:
+  - multiple DODAGs, RPL instances, OFs
+  - secure version of all headers -- not clear this could be achieved using app level
+    or L2 security. To knowledge no one has implemented this
+- underspecification:
+  - how often to send DAO messages? relayed to the parent, constant overhead of messages
+  - interoperability is a problem (contiki/tinyrpl happy together). Two implementations
+    must have the same feature set, which is different than the minimal set of features
+    required to have the system working:
+    - storing mode vs non storing mode
+- unnecessary features:
+  - RPL instances -- the standard does not even talk about multiple
+  - multiple objective functions: only 2 were ever implemented
+  - dio/dis are very similar to ipv6 nd ra/rs messages
+\fi
+
+
+\if 0
+interoperability is a problem!!!
+
+As of the writing of this specification, no implementation is
+expected to support both Storing and Non-Storing modes of operation.
+Most implementations are expected to support either no Downward
+routes, Non-Storing mode only, or Storing mode only.  Other modes of
+operation, such as a hybrid mix of Storing and Non-Storing mode, are
+out of scope for this specification and may be described in other
+companion specifications.
+\fi
+
+\subsection{IPv6 Neighbor Discovery}
+
+In our investigations, we found that the RPL standard is not the only standard that should be revisited for the domain of wireless LLNs (also called LoWPANs).
+IPv6 Neighbor Discovery (IPv6 ND)~\cite{narten2007rfc4861} defines a family of ICMP messages and options to provide the following features: router discovery, prefix and link parameter discovery, stateless address autoconfiguration, address resolution, neighbor unreachability detection (NUD) and duplicate address detection.
+Within the context of WSNs, many of these features become redundant, and some become detrimental.
+These limitations exist despite recent efforts to optimize IPv6 ND for 6LoWPANs~\cite{shelby2012rfc}.
+
+The primary issue with IPv6 ND in 6LoWPANs is Neighbor Unreachability Detection (NUD).
+Firstly, within 6LoWPANs, it is reasonable to avoid active maintenance of connectivity to neighbors, instead using application traffic and overheard messages to establish reachability; the rationale is that if the link was important, it would be used.
+Prior to RFC 7048, to establish if a neighbor was still ``on link'', a node would send three NUD messages one second apart.
+The RFC changed this interval to three seconds, but even this does not appropriately account for transient link failures.
+There is no need to generate extra traffic to maintain this information, especially considering the additional detriment that the node cannot listen for incoming messages while sending or while performing CSMA.
+
+IPv6 ND also establishes that a node should send messages for registering IPv6 addresses, verifying that default routers are still reachable, registering and deregistering from routers.
+A common configuration mode of 6LoWPANs uses a form of Stateless Address Autoconfiguration (SLAAC) in which the upper 64 bits of a nodes address is a prefix shared for the mesh and the lower 64 bits comprises a 48-bit EUI-64 address (which is typically identical for a collection of uniform motes) and a 16-bit unique node identifier.
+Careful planning can easily obviate duplicate address detection, and node registration and reachability detection can all be handled by observing application traffic.
+
+\if 0
+- RPL is not the only standard that would need to be revisited for wireless LLNs.
+- IPv6 Neighbor Discovery is intended to provide following features:
+    - router discovery: find routers on attached link
+    - parameter discovery:
+        - prefix discovery, link MTU, hop limit, etc
+    - stateless address autoconfiguration
+    - address resolution
+    - neighbor unreachability detection (NUD)
+    - duplicate address detection
+- these are more features than are needed for WSNs because of restrictions:
+    - NUD: no need to maintain connectivity to neighbors
+        - use the application traffic to determine if link is still good
+        - if you don't use the link, don't waste time and energy keeping it up:
+            - places pressure on the channel because you can only broadcast!
+        - IP is best-effort: use this leeway!
+    - duplicate address detection:
+        - a common way of configuring motes is SLAAC
+        - one way of doing this is 64-bit prefix + 64-bit EUI-64 address
+        - 48bit MAC, last 16 bits are a unique node identifier
+        - upshot: can compress the address of a mote into 2 bytes (2^16-1 addresses)
+        - guaranteed unique address: no need to check for dups
+- constants: too chatty?
+    - rfc6775 attempts to adapt for 6LowPANs:
+    - "Minimize signaling by avoiding the use of multicast
+      flooding and reducing the use of link-scope multicast messages"
+    - original constants: cite them
+    - rfc6775 new constants:
+        - max RAs: 3
+        - min delay btwn RA: 10s
+        - max RA delay time 2 sec
+        - RS interval: 10s
+        - max RS : 3
+        - max Rs interval - 60s
+- NUD: too chatty
+    - send unicast NS messages for registering IPv6 addresses
+    - send messages to verify that default routers are still reachable
+    - host needs to maintain "NCE" in the router
+    - NUD defines probes, but can be suppressed using reachability confirmation
+      (defined in 4861 and 6775). HOWEVEr does not allow for letting stuff go stale
+    - registering/deregestering w/ routers using AR0 options -- why do we need these
+\fi
