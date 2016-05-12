@@ -86,7 +86,36 @@ How do it work though:
     repair happens
 - control mesages
 - how topology formation works
+\fi
 
+\subsection{Criticisms}
+
+RPL is not an effective standard.
+Its complexity and underspecification make it difficult to have two fully interoperable implementations because there are multiple subsets of features for basic operation that are mutually exclusive from an interoperability standpoint.
+This is explicitly mentioned in the RFC~\cite{rfc6550}:
+
+\begin{displayquote}
+As of the writing of this specification, no implementation is expected to support both Storing and Non-Storing modes of operation.
+Most implementations are expected to support either no Downward routes, Non-Storing mode only, or Storing mode only.
+Other modes of operation, such as a hybrid mix of Storing and Non-Storing mode, are out of scope for this specification and may be described in other companion specifications.
+\end{displayquote}
+
+The bulk of this complexity comes from an overabundance of features, some redundant with link-layer features, some unnecessary for the majority of deployments.
+
+\textbf{Unnecessary Features} A major limitation of RPL is that DODAG-based routing can only support a single border router, which is a single point of failure for the mesh.
+The vague role of RPL instances and multiple objective functions make it difficult to reason about how to construct ``backup'' roots for data retrieval.
+The RPL standard does not guidance on or use cases for multiple RPL instances in a single WSN.
+
+RPL also defines secure versions of all routing messages and headers.
+It is not clear how much value these provide above the typical approaches of link-layer or application-layer encryption, and in fact, no known open source implementation of RPL actually implements this feature.
+
+\textbf{Designing for the Medium.} No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
+In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because wireless link-layers live in a broadcast medium, it no longer suffices to think of communication between hosts as independent.
+This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
+Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
+However, the wireless medium also provides an opportunity for sharing information between nodes, which we explore in the construction of our own routing protocol.
+
+\if 0
 We can then start criticizing it:
 - complexity:
   - multiple DODAGs, RPL instances, OFs
@@ -104,13 +133,6 @@ We can then start criticizing it:
   - dio/dis are very similar to ipv6 nd ra/rs messages
 \fi
 
-\subsection{Criticisms}
-
-No matter the motivation for the constraint that RPL cannot rely on link-layer specific features, the consequence is that RPL must implement features redundant with that layer, and cannot take advantage of the nature of the medium.
-In traditional routing, a ``link'' is usually thought of as connecting two hosts, but because wireless link-layers live in a broadcast medium, it no longer suffices to think of communication between hosts as independent.
-This introduces a new set of tradeoffs in the design of a routing protocol: channel contention and message collision are real concerns mostly addressed by Media Access Control, but broadcast messages and hidden terminal constructions can still result in midair collisions and thus packet loss.
-Additionally, because channel bandwidth is limited (250 kbits/sec for 802.15.4 radios), repair mechanisms must take care to not be too ``chatty'', lest they cause enough congestion for another node to believe it is offline and also trigger a repair.
-However, the wireless medium also provides an opportunity for sharing information between nodes.
 
 \if 0
 interoperability is a problem!!!
@@ -124,7 +146,7 @@ out of scope for this specification and may be described in other
 companion specifications.
 \fi
 
-\subsection{IPv6 Neighbor Discovery -- Gabe }
+\subsection{IPv6 Neighbor Discovery}
 \if 0
 - RPL is not the only standard that would need to be revisited for wireless LLNs.
 - IPv6 Neighbor Discovery is intended to provide following features:
