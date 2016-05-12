@@ -1,12 +1,13 @@
+\begin{figure}[t]
+\centering
+\includegraphics[width=.9\linewidth]{figs/NodeStack}
+\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio stack that would otherwise be difficult to incorporate.}
+\label{fig:nodestack}
+\end{figure}
+
 \section{Evaluation Platform}
 
-\begin{figure*}[ht]
-\centering
-\includegraphics[width=.9\linewidth]{figs/code_dissemination}
-\caption{Code dissemination over WSN nodes. Each node contains the stack in Figure \ref{fig:nodestack}. Code is disseminated from a coordinator node via unicast to each node. After the experiment is complete, reports are sent back to the coordinator.}
-\label{fig:dissemination}
 
-\end{figure*}
 
 Traditionally, the storage constraints of embedded platforms have forced an opacity onto embedded networking stacks, making it difficult to add monitoring logic without removing functionality from the stack itself.
 The iterative process of altering the networking stack for any sort of parametric study is intractable for more than a few parameters.
@@ -29,13 +30,6 @@ The recently-introduced Storm platform~\cite{andersen2016system} used in this st
 
 \subsection{Software Platform}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=.9\linewidth]{figs/NodeStack}
-\caption{The full hardware/software stack for network experimentation. Kernel syscalls take advantage of the synergy between hardware and firmware to expose low-level metrics on the radio stack that would otherwise be difficult to incorporate.}
-\label{fig:nodestack}
-\end{figure}
-
 
 In this section, we discuss the software platform for the Storm motes that are the nodes used in the networking study presented in Section~\ref{section:evaluation}.
 The motes run a port of TinyOS 2.x, using the Berkeley Low-Power IPv6 stack (BLIP) and TinyRPL.
@@ -47,7 +41,7 @@ We extend this base functionality with:
 \item a host of tricks for placing two complete routing protocols on a mote with the ability to switch without reflashing
 \end{itemize}
 
-Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each node in the network to be measured. \todo{talk about it ocnee the figure is fixed so that WAX is not there. Also needs external/internal flash on the diagram?}
+Figure~\ref{fig:nodestack} illustrates the full mote platform that runs on each node in the network to be measured.
 When each node boots, it first performs the usual TinyOS initializations, and then jumps into the userland code and starts executing the equivalent of \texttt{main.lua}.
 We preempt this boot sequence so that before the userland code is executed, the kernel reads from a particular location in external memory that establishes which routing protocol and parameters it should use.
 This requires some trickery, described below.
@@ -98,15 +92,20 @@ If the chunk is ``complete'' --- that is, a syntactically valid piece of Lua cod
 Out-of-memory errors can occur if a buffer forms a large Lua code segment that is not terminated (such as within a large \texttt{while} statement).
 It is difficult to recover from out-of-memory errors on an embedded platform; this encourages the dissemination of small, modular functions or tuning variables for preloaded applications.
 
-\todo{talk about how we can replace methods at runtime. Can have a generic method that calls the 'pattern generator' every 'N' seconds, and we can replace those params and functions to do whatever we want. Provide a code sample!}
+%\todo{talk about how we can replace methods at runtime. Can have a generic method that calls the 'pattern generator' every 'N' seconds, and we can replace those params and functions to do whatever we want. Provide a code sample!}
 
 \subsection{Network Measurement Platform}
 
 Each network experiment comprises five elements: initialization, start condition, traffic generation, stop condition, reporting.
 Our network measurement platform provides default methods for each of these elements, and new methods and data structures can also be disseminated over the network and used in subsequent experiments.
 Code capsules sent over the network and received at each node describe the state machine of actions to be taken over the course of a network experiment.
-While
 
+\begin{figure*}[ht]
+\centering
+\includegraphics[width=.9\linewidth]{figs/code_dissemination}
+\caption{Code dissemination over WSN nodes. Each node contains the stack in Figure \ref{fig:nodestack}. Code is disseminated from a coordinator node via unicast to each node. After the experiment is complete, reports are sent back to the coordinator.}
+\label{fig:dissemination}
+\end{figure*}
 
 Now, we will describe how the platform implements each of these five elements.
 
