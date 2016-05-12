@@ -1,1 +1,45 @@
 \section{Introduction}
+
+It has been several years since RPL was introduced as a routing protocol for the kinds of links used in wireless sensor networks (WSNs).
+While various commercial products have introduced some form of IPv6 over LoWPAN, these operate in stand-alone settings, such as automated meter reading networks, and there is essentially nothing in the literature regarding specifics or performance of their routing protocols.
+Open implementations of RPL are available, but there is a pronounced lack of study of their empirical behavior, particularly in the common case of small (10s of nodes) shallow (one to three hop) networks.
+
+The original vision of this project was to develop a new routing protocol --- \texttt{3hop} --- for this common but understated scenario and to augment a discussion of the design and implementation of this new protocol with a comparative study of RPL.
+
+
+\if 0
+- Motivation starts off by saying: look, for the very common case of indoor, low-power
+  sensor networks, there is a need for routing.
+- what do WSN nodes look like?
+    - http://www.airccse.org/journal/ijcses/papers/1110ijcses06.pdf
+    - low bandwidth, low power, low memory, short range (10-50m)
+    - unreliable -- things crash, run out of power -> topology changes!
+      - need to adapt to failures
+    - self-configuring: nodes will need to discover the topology.
+    - channel utilization:
+      - want to make efficient use of bandwidth by reducing control traffic
+        necessary for maintaining the mesh
+      - has upshot of saving power too
+      - this is also addressed at MAC layer, which we do not address
+- This particular case of WSN topology formation is defined by the following characteristics:
+    - SMALL: order 10s of nodes, over a small geographic area: a building or collection of rooms
+    - mains power available at some locations throughout a space: wall plugs here and there
+    - It is feasible to cover the monitored space in a mesh with hops no greater than 3
+    - environment can change: furniture, people -- transient connectivity
+- establish the goals and parameters of our proposed routing protocol
+- Firstly, what does a routing protocol have to do?
+    - mote must discover the prefix
+      - simplifying assumptions: slaac, using 48-bit MAC and 16 bit node id
+    - build upward routes: multipoint-to-point
+      - list some ways to do this?
+    - build downward routes
+      - need for acknowledgements, actuations
+    - point to point routes
+      - rarer, but in small networks w/ actuators and sensors, this may become more common.
+    - prepare for failure:
+      - provide a means of repairing the network
+    - useful parts: border router, providing physical translation in/out of
+      the network. Handles prefix compression/expansion for 6lowpan, generally
+      more powerful, powered. Can have large bandwidth backbone
+\fi
+

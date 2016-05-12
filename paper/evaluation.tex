@@ -56,11 +56,12 @@ The results of the experiements are summarized in Table~\ref{table:results}.
 \end{figure}
 
 
-Here we present the results of the single-hop experiments.
 While both protocols achieve similar packet reception ratios, the RPL topology generates roughly twice as many packets because of the constant overhead of DIO advertisement messages.
 In contrast, the 3hop protocol generates its equivalent of DIO --- the Router Advertisement messages with the Mesh Info option --- on a Trickle timer, thus reducing the portion of traffic related to maintenance of the topology.
 
 \subsection{Multi-Hop}
+
+In the multi-hop case,
 
 \begin{figure}[t]
 \centering
