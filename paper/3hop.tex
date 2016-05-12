@@ -55,7 +55,7 @@ The reason for this is to give better parents the opportunity to broadcast their
 If a waiting neighbor hears a Mesh Info message that included the new mote in its neighbor set, then it knows to cancel its Mesh Info message.
 This is one way in which the broadcast medium helps to reduce extraneous control traffic.
 Because motes advertise their neighbor set to their neighbors, motes can contruct upward/downward routes that are within 2 hops.
-However, if a node comes online that is more than 2 hops away from the border router, it will be able to contruct an upward route to the border router, but the border router will not be able to construct a downward route to that mote, because it's not aware of its existence.
+However, if a node comes online that is more than 2 hops away from the border router, it will be able to contruct an upward route to the border router, but other nodes greater than 2 hops away (including the border router) from the mote will not be able to construct a downward route to that mote, because it's not aware of its existence.
 Therefore, to address this problem, 3hop also defines a Router Advertisement (Announcement) message that is unicasted to the root when a mote with a hop count greater than 2 joins the mesh.
 This Router Advertisement (Announcement) message includes:
 \begin{itemize}
@@ -63,6 +63,7 @@ This Router Advertisement (Announcement) message includes:
 \item preferred parent
 \end{itemize}
 As this message is sent upwards towards the root, the motes along the path contruct downward routes to that mote, and this information is propogated via Mesh Info messages.
+
 
 \if 0
 - Elements
