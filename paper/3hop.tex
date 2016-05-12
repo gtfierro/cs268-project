@@ -7,9 +7,9 @@ One of the main goals of 3hop is to ensure that control traffic decreases as the
 There is no reason to maintain information on links that are never used, and, by exploiting this fact, it's possible to reduce control traffic substantially. 
 Additionally, 3hop utilizes the broadcast medium as often as possible and this also helps to reduce unnecessary traffic in many cases.
 3hop supports duty cyled nodes as this is quite common in low-power wireless sensor networks.
-Finally, 3hop supports multiple border routers for the same mesh, and this redundancy allows nodes to find routes even in the face of failures.
+Finally, 3hop supports multiple border routers for the same mesh, and this redundancy allows nodes to find routes even when failures occur.
 3hop defines only 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement), and these are used to build upward and downward routes.
-To support multiple border routers, 3hop uses a centralized coordinator to route packets thru the right border router to reach a particular node.
+To support multiple border routers, 3hop uses a centralized coordinator to route packets thru the best border router to reach a particular node.
 
 \if 0
 - design goals
@@ -43,19 +43,19 @@ This Mesh Info message includes:
 \item neighbor set
 \item mesh schedule info
 \end{itemize}
-The main purpose of the Mesh Info message is not only to keep motes up-to-date with any changes to the mesh topology, but also to give new motes an oppurtunity to join the mesh.
-When a mote goes online, it needs a way to announce it's existence so that it may bootstrap itself to the mesh. 
+The main purpose of the Mesh Info message is not only to keep motes up-to-date with any changes to the mesh topology, but to also give new motes an oppurtunity to join the mesh.
+When a mote comes online, it needs a way to announce it's existence so that it may bootstrap itself to the mesh. 
 This is accomplished by broadcasting a Router Solicitation message which includes: 
 \begin{itemize}
 \item power profile
 \item phase info
 \end{itemize}
 Neighbors that hear this message will reset their Mesh Info trickle timers and wait some amount of time proportional to their hop count. 
-The reason for this is to give better parents the oppurtunity to broadcast their Mesh Info message before worse options get a chance to do so.
-If a waiting neighbor hears a Mesh Info message that included the new mote in it's neighbor set, then it knows to cancel it's Mesh Info message.
-This is one way in which the broadcast medium helps to reduce extraneous control traffic. 
+The reason for this is to give better parents the opportunity to broadcast their Mesh Info message before worse parents get a chance to do so.
+If a waiting neighbor hears a Mesh Info message that included the new mote in its neighbor set, then it knows to cancel its Mesh Info message.
+This is one way in which the broadcast medium helps to reduce extraneous control traffic.
 
-
+fill
 
 \if 0
 - Elements
@@ -100,6 +100,21 @@ This is one way in which the broadcast medium helps to reduce extraneous control
 \fi
 
 \subsection{Border Router -- Zain}
+One of the key design goals of 3hop is to be able to support multiple border routers for the same mesh, and this redundancy ensures that motes still have upward/downward routes if a border router were to fail.
+With multiple borders in a mesh, it isn't uncommon to have an airgap where seperated clusters of motes can reach a single border router, and so there must be some way to route packets between border routers.
+There are a couple ways to address this issue -- either let each border router advertise a seperate prefix or have internal infrastructure that handles routing between border routers.
+The problem with advertising seperate prefixes is that the outside world must somehow keep track of which motes a border router can reach and this is an unreasonable expectation.
+Instead, 3hop takes the other approach and internally incorporates the routing between border routers so that the outside world is protected from any internal changes in the mesh.
+There are multiple approaches to solving this problem -- the two main ones that were considered were:
+\begin{itemize}
+\item A decentralized approach where border routers communicate among themselves and reach consensus on best routes
+\item A centralized approach where a centralized coordinator handles all the routing between border routers 
+\end{itemize}
+While both solutions have their pros and cons, 3hop takes the centralized approach as it is fairly simple in design and solves the problem quite well.
+The border routers simply listen to Mesh Info/Announcement messages from the mesh, and use this information to establish downward routes.
+Additionally, these border routers relay information on which motes they can reach up to the coordinator which keeps of all this state and routes incoming packets through the best border routers.
+
+
 \if
 - why multiple borders same mesh?
     - redundancy if failures -- need multiple paths upward/downward
