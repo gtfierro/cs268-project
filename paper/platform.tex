@@ -119,7 +119,7 @@ This method can actually be disseminated through the network, allowing the start
 
 The code for the flooding start mechanism used for our network measurements is below.
 It defines a socket with a callback invoked when the socket receives a packet.
-The callback schedules a software reset\footnote{This can be switched out for a routing/neighbor-table flush to persist dynamically loaded code} to be execued in 20 seconds (configurable), and also schedules the three ``reset'' broadcast packets to be sent with some jitter between them.
+The callback schedules a software reset\footnote{This can be switched out for a routing/neighbor-table flush to persist dynamically loaded code} to be executed in 20 seconds (configurable), and also schedules the three ``reset'' broadcast packets to be sent with some jitter between them.
 Jitter helps increase the probability that all nodes receive a reset signal; otherwise, if multiple nodes both receive a reset broadcast and they send a broadcast at the same time, those broadcasts may collide at a third node such that it does not receive either.
 
 \begin{luacode}
@@ -152,7 +152,7 @@ storm.net.sendto("ff02::1",6666,"reset!")
 We could also of course send a packet to port 6666 on a node, which would then start the flooding process, but by having the original node broadcast, we can reduce the flooding time by a few seconds\footnote{It is also much more fun to execute code over the network rather than just sending a packet}.
 
 \textbf{Traffic Generation:}  This block of code is the logic that runs during the experiment in question and handles both traffic generation and network monitoring.
-The primary concerns of the generation component are determing how often the node sends and to whom.
+The primary concerns of the generation component are determining how often the node sends and to whom.
 The two most common patterns of this are a periodic send or a request-response or ``echo'' generator.
 Dynamic code loading allows capsules to easily define point-to-multipoint, multipoint-to-point or even point-to-point traffic.
 
