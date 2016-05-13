@@ -5,8 +5,8 @@ In this section, we'll look at the design goals of the 2hop routing protocol and
 One of the main goals of 2hop is to ensure that control traffic decreases as the network topology converges. 
 2hop avoids sending unnecessary control traffic by using application traffic to maintain mesh topology. 
 There is no reason to maintain information on links that are never used, and, by exploiting this fact, it's possible to reduce control traffic substantially. 
-Additionally, 2hop utilizes the broadcast medium as often as possible and this also helps to reduce unnecessary traffic in many cases.
-2hop supports duty cyled nodes as this is quite common in low-power wireless sensor networks.
+Additionally, 2hop utilizes the broadcast medium as often as possible, and this also helps to reduce unnecessary traffic in many cases.
+While not yet implemented, 2hop supports duty cycled nodes as this is quite common in low-power wireless sensor networks.
 Finally, 2hop supports multiple border routers for the same mesh, and this redundancy allows nodes to find routes even when failures occur.
 2hop defines only 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement), and these are used to build upward and downward routes.
 To support multiple border routers, 2hop uses a centralized coordinator to route packets thru the best border router to reach a particular node.
@@ -30,11 +30,11 @@ It's the job of each mote to discover the prefix of the mesh upon joining it, an
 To build upward routes, motes simply choose a preferred parent that has the lowest hop count to the border router.
 If this preferred parent goes offline or no longer exists, another preferred parent is chosen.
 And to build downward routes, motes construct a neighbor table of all the motes they hear via broadcast, and distribute this information to neighbors which build a forwarding table of motes reachable through neighbors.
-In the case of point to point communication, 2hop utilizes triangle routing which is simple and sufficient enough, because motes are at most 3 hops from the border router.
-As it will become quite clear, 2hop heavily relies on trickle timers as this reduces control traffic when it's not necessary, but also quickly responds to changes in the mesh topology.
+In the case of point to point communication, 2hop utilizes triangle routing which is simple and sufficient enough, because motes in these networks are typically 2-3 hops from the border router.
+As it will become quite clear, 2hop heavily relies on Trickle timers as this reduces control traffic when it's not necessary, but also quickly responds to changes in the mesh topology.
 To actualize these key elements, the 2hop routing protocol builds off the IPv6 Neighbor Discovery standard, and uses the option field to define 3 main types of messages -- Router Solicitation, Router Advertisement (Mesh Info), and Router Advertisement (Announcement).
 
-Motes that are a part of a mesh broadcast a Router Advertisement (Mesh Info) message on a trickle timer. 
+Motes that are a part of a mesh broadcast a Router Advertisement (Mesh Info) message on a Trickle timer. 
 This Mesh Info message includes:
 \begin{itemize}
 \item mesh prefix
@@ -43,8 +43,8 @@ This Mesh Info message includes:
 \item neighbor set
 \item mesh schedule info
 \end{itemize}
-The main purpose of the Mesh Info message is not only to keep motes up-to-date with any changes to the mesh topology, but to also give new motes an oppurtunity to join the mesh.
-When a mote comes online, it needs a way to announce it's existence so that it may bootstrap itself to the mesh. 
+The main purpose of the Mesh Info message is not only to keep motes up-to-date with any changes to the mesh topology, but to also give new motes an opportunity to join the mesh.
+When a mote comes online, it needs a way to announce its existence so that it may bootstrap itself to the mesh. 
 This is accomplished by broadcasting a Router Solicitation message which includes: 
 \begin{itemize}
 \item power profile
@@ -54,16 +54,17 @@ Neighbors that hear this message will reset their Mesh Info trickle timers and w
 The reason for this is to give better parents the opportunity to broadcast their Mesh Info message before worse parents get a chance to do so.
 If a waiting neighbor hears a Mesh Info message that included the new mote in its neighbor set, then it knows to cancel its Mesh Info message.
 This is one way in which the broadcast medium helps to reduce extraneous control traffic.
-Because motes advertise their neighbor set to their neighbors, motes can contruct upward/downward routes that are within 2 hops.
+Because motes advertise their neighbor set to their neighbors, motes can construct upward/downward routes that are within 2 hops.
 Also, because motes advertise their neighbor set, this helps to not only reduce control traffic but also to increase consistency since motes can learn about information that may be wrong and correct it.
-However, if a node comes online that is more than 2 hops away from the border router, it will be able to contruct an upward route to the border router, but other nodes greater than 2 hops away (including the border router) from the mote will not be able to construct a downward route to that mote, because it's not aware of its existence.
+However, if a node comes online that is more than 2 hops away from the border router, it will be able to construct an upward route to the border router, but other nodes greater than 2 hops away (including the border router) from the mote will not be able to construct a downward route to that mote, because it's not aware of its existence.
 Therefore, to address this problem, 2hop also defines a Router Advertisement (Announcement) message that is unicasted to the root when a mote with a hop count greater than 2 joins the mesh.
 This Router Advertisement (Announcement) message includes:
 \begin{itemize}
 \item hop count
 \item preferred parent
+\item neighbor set
 \end{itemize}
-As this message is sent upwards towards the root, the motes along the path contruct downward routes to that mote, and this information is propogated via Mesh Info messages.
+As this message is sent upwards towards the root, the motes along the path construct downward routes to that mote, and this information is propagated via Mesh Info messages.
 
 
 \if 0
@@ -110,9 +111,9 @@ As this message is sent upwards towards the root, the motes along the path contr
 
 \subsection{Border Router}
 One of the key design goals of 2hop is to be able to support multiple border routers for the same mesh, and this redundancy ensures that motes still have upward/downward routes if a border router were to fail.
-With multiple borders in a mesh, it isn't uncommon to have an airgap where seperated clusters of motes can reach a single border router, and so there must be some way to route packets between border routers.
-There are a couple ways to address this issue -- either let each border router advertise a seperate prefix or have internal infrastructure that handles routing between border routers.
-The problem with advertising seperate prefixes is that the outside world must somehow keep track of which motes a border router can reach and this is an unreasonable expectation.
+With multiple borders in a mesh, it isn't uncommon to have an air gap where separated clusters of motes can reach a single border router, and so there must be some way to route packets between border routers.
+There are a couple ways to address this issue -- either let each border router advertise a separate prefix or have internal infrastructure that handles routing between border routers.
+The problem with advertising separate prefixes is that the outside world must somehow keep track of which motes a border router can reach and this is an unreasonable expectation.
 Instead, 2hop takes the other approach and internally incorporates the routing between border routers so that the outside world is protected from any internal changes in the mesh.
 There are multiple approaches to solving this problem -- the two main ones that were considered were:
 \begin{itemize}
@@ -121,8 +122,8 @@ There are multiple approaches to solving this problem -- the two main ones that 
 \end{itemize}
 While both solutions have their pros and cons, 2hop takes the centralized approach as it is fairly simple in design and solves the problem quite well.
 The border routers simply listen to Mesh Info/Announcement messages from the mesh, and use this information to establish downward routes.
-Additionally, these border routers relay information on which motes they can reach up to the coordinator which keeps of all this state and routes incoming packets through the best border routers.
-As part of our infrastructure, we've implemented a coordinator node that listens for incoming packets from the outside world as well as mote reachability information (a list of motes that can be reached) from the border routers. The coordinator and border routers are all connected via ethernet, and we use a SIT tunnel to transfer IPv6 packets between the coordinator and border routers. Periodically, the border routers will send mote reachability information to the coordinator, and the coordinator will update a routing table with this information. When a packet comes in, the coordinator does a lookup in a routing table to find the border router that can reach the destination of that packet and fowards the packet to that border router which handles the rest of the routing.
+Additionally, these border routers relay information on which motes they can reach up to the coordinator which keeps track of all this state and routes incoming packets through the best border routers.
+As part of our infrastructure, we've implemented a coordinator node that listens for incoming packets from the outside world as well as mote reachability information (a list of motes that can be reached) from the border routers. The coordinator and border routers are all connected via ethernet, and we use a SIT tunnel to transfer IPv6 packets between the coordinator and border routers. Periodically, the border routers will send mote reachability information to the coordinator, and the coordinator will update a routing table with this information. When a packet comes in, the coordinator performs a lookup in a routing table to find the border router that can reach the destination of that packet and forwards the packet to that border router which then handles the rest of the routing.
 
 \if
 - why multiple borders same mesh?
@@ -137,6 +138,3 @@ As part of our infrastructure, we've implemented a coordinator node that listens
 - updates
     - listen to Mesh Info/Announcement messages from mesh
 \fi
-
-
-
