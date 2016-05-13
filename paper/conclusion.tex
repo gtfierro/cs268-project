@@ -1,1 +1,9 @@
 \section{Conclusion}
+
+In this paper, we revisit the task of topology formation and routing for wireless sensor networks, particularly the common case of 10s of nodes no more than 1-3 hops away from a border router.
+Our results are threefold: first, we discuss the inadequacies of the RPL routing standard and the current version of the IPv6 Neighbor Discovery standard.
+They generate too much traffic, which reduces the size and lifetime of a battery-operated WSN.
+We argue that with careful design and cross-layer optimizations, most of the defined messages in these standards can be elided.
+Secondly, we present the design and implementation of a new routing protocol --- 2hop --- that explores the benefits of sharing neighbor tables for topology formation.
+Lastly, we develop a network measurement platform that allows us to evaluate the efficacy of the RPL and 2hop routing protocols.
+We establish that RPL's lack of specificity results in a constant overhead of control traffic that is unnecessary for mesh maintenance; in constrast, the 2hop routing protocol establishes routes quickly, is more stable than RPL, and reduces control traffic gracefully as the network approaches a steady state.
