@@ -7,8 +7,6 @@
 
 \section{Evaluation Platform}
 
-
-
 Traditionally, the storage constraints of embedded platforms have forced an opacity onto embedded networking stacks, making it difficult to add monitoring logic without removing functionality from the stack itself.
 The iterative process of altering the networking stack for any sort of parametric study is intractable for more than a few parameters.
 Usually, these parameter spaces are explored with the help of a network simulator such as COOJA~\cite{cooja}, OMNET++~\cite{omnet++} or NS2~\cite{ns2}.
@@ -69,6 +67,7 @@ This requires some trickery, described below.
 Once in \texttt{main.lua}, the network measurement platform performs its initialization before jumping into the received code capsule to start the experiment.
 
 Each experiment is started and coordinated by either a laptop or desktop computer attached to the network.
+\emph{We refer to this entity as a ``coordinator'' but it is distinct from the coordinating node used by the 2hop border routers.}
 This coordinator disseminates code, triggers the beginning of the experiment and retrieves the reports from the nodes after the experiment.
 The coordinator does not participate in the experiment, but it can serve as a ``data drop'' for a measurement application such as measuring the packet reception ratio.
 
